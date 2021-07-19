@@ -1,0 +1,154 @@
+<html>
+<head>
+    <title>Page Title</title>
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!----font awesome-->
+<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" data-auto-replace-svg="nest"></script>
+
+<!---flaticon-->
+<link rel="stylesheet" type="text/css" href="C:\Users\Jan Cuvinar\Desktop\CVSu - e Guidance\font\flaticon.css">
+
+<!--------CSS------->
+<link rel="stylesheet" href="CvsuGuidance.css">
+    
+</head>
+
+<body>
+        <!--navigation--> 
+        <nav class="navbar bg-dark navbar-dark navbar-expand-md">
+          <div class="container">
+            
+            <a href="" class="navbar-brand"><img src="logo.png" alt="logo" title="logo"></a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+              data-target="#nabvarResponsive">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="nabvarResponsive">
+              <ul class="navbar-nav ml-auto">
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.html">
+                    </i>Home</a>
+                </li>
+
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="" id="#navbarDropdown" 
+                      role="button" data-toggle="dropdown">Emergency Report</a>
+                          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                          <a class="dropdown-item" href="Emergency.html">Reports</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="Update.html">Update</a>
+                        </div>
+                  </li>
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="Resident.html">
+                    </i>Resident Information</a>
+                </li>
+              </ul>
+            </div>
+          </div>    
+        </nav>
+
+        <!----Content-->
+
+        <div class="container">
+          <div class="row">
+            <div class="col-8" id="recordmodule">
+              <h3 class="container-fluid mt-5">Update</h3>
+  
+              <div class="scrollable">
+                  <table class="table table-hover mt-3 mb-3">
+                    <thead>
+                     <tr>
+                          <th scope="col">Unique ID</th>
+                          <th scope="col">Phone Number</th>
+                          <th scope="col">Incident</th>
+                          <th scope="col">Status</th>
+                     </tr>
+                   </thead>
+                    <tbody id="table_body">
+                     
+                   </tbody>
+                </table>
+              </div>
+          </div>
+
+          <div class="col-4  mt-5">
+            <div class="container mt-5">
+              <div class="form-group">
+                <input class="form-control form-control-sm" type="id"  placeholder = "Unique ID" id = "id" required ="required"></br>
+                <input class="form-control form-control-sm" type="mobile_no"  placeholder = "Phone Number" id = "mobile_no" required ="required"></br>
+                <input class="form-control form-control-sm" type="type"  placeholder="Incident" id = "type" required ="required"> <br>
+                <input class="form-control form-control-sm" type="status"  placeholder="Status" id = "status" required ="required"> <br>
+
+              <div class="mt-3">
+                <div class="mt-3">
+                  <button type="button" class="btn btn-success" id= "btnAdd">Add</button>
+                  <button type="button" class="btn btn-success" id = "btnDelete">Delete</button>
+                  <button type="button" class="btn btn-success" id = "btnUpdate">Update</button>
+              </div>
+            </div>
+            </div>
+            </div>
+        </div>
+          </div>
+        </div>
+
+<!----scripts-->
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytic.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyDwtr3FT5EcxaR8J_TqUm0TDsZf3uflZjc",
+    authDomain: "alerto-barangay-8b131.firebaseapp.com",
+    databaseURL: "https://alerto-barangay-8b131-default-rtdb.firebaseio.com",
+    projectId: "alerto-barangay-8b131",
+    storageBucket: "alerto-barangay-8b131.appspot.com",
+    messagingSenderId: "737869365215",
+    appId: "1:737869365215:web:e2da71819750b21d9cce6a",
+    measurementId: "G-27R0YR9BJS"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+
+<script src = "AdminRecordModule.js"></script>
+
+  <script type = "">
+      function letterOnly(input){
+        var regex = /[0-9]/g;
+        input.value = input.value.replace(regex, "");
+      }
+  </script>
+  <script type = "">
+      function numberOnly(input){
+        var regex = /[a-z]/gi;
+        input.value = input.value.replace(regex, "");
+      }
+  </script>
+
+ 
+</body>
+</html>

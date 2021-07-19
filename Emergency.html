@@ -1,0 +1,345 @@
+<html>
+  <head><title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!----font awesome-->
+<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" data-auto-replace-svg="nest"></script>
+
+<!---flaticon-->
+<!-- <link rel="stylesheet" type="text/css" href="C:\Users\Jan Cuvinar\Desktop\CVSu - e Guidance\font\flaticon.css"> -->
+
+<!--------CSS------->
+<!-- <link rel="stylesheet" href="CvsuGuidance.css"> -->
+    <style>
+      html,body
+      {
+        height:100%;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
+
+      .message-btn {
+        background-color: #377ebf;
+        border-radius: 0.3rem;
+        padding: 0.5rem;
+        width: max-content;
+        cursor: pointer;
+        color: #ffffff;
+      }
+
+      .message-btn:hover {
+        background-color: #2e669b;
+      }
+
+      .hidden{
+        display: none;
+      }
+
+      .msg-dialog {
+        position: absolute;
+        max-width: 100%;
+        padding: 1rem;
+        --tw-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+        border: dimgray 5px;
+        top: 50%;
+        left: 50%;  
+        transform: translate(-50%,-50%);
+        background-color: #ffffff;
+      }
+
+      .msg-btn-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 0.5rem;
+      }
+
+      .send-btn {
+        background-color: #377ebf;
+        border-radius: 0.3rem;
+        padding: 0.5rem 2rem;
+        width: max-content;
+        cursor: pointer;
+        color: #ffffff;
+        margin: auto  1rem;
+      }
+
+      .cancel-btn {
+        margin: auto 0.5rem;
+        display: table;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      #usersNumber {
+        color: #562eb3;
+      }
+
+        </style>
+  </head>
+
+  <body>
+<!--navigation--> 
+<nav class="navbar bg-dark navbar-dark navbar-expand-md">
+  <div class="container">
+    
+    <a href="" class="navbar-brand"><img src="logo.png" alt="logo" title="logo"></a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+      data-target="#nabvarResponsive">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nabvarResponsive">
+      <ul class="navbar-nav ml-auto">
+
+        <li class="nav-item active">
+            <a class="nav-link" href="index.html">
+            </i>Home</a>
+        </li>
+
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="" id="#navbarDropdown" 
+              role="button" data-toggle="dropdown">Emergency Report</a>
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="Emergency.html">Reports</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="Update.html">Update</a>
+                </div>
+          </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="Resident.html">
+            </i>Resident Information</a>
+        </li>
+      </ul>
+    </div>
+  </div>    
+</nav>
+    <div class="container mt-3">
+          
+      <table class="table">
+        <thead>
+          <th>Message</th>
+          <th>Date</th>
+          <th>Comment</th>
+          <th>Incident</th>
+          <th>Status</th>
+        </thead>
+
+        <tbody id="tbody1">
+        </tbody>
+      </table>
+    </div>
+
+    <!-- pop up dialog for message -->
+    <section class="msg-dialog" id="message-dialog">
+      <div class="msg-container">
+        <div>
+          <h6 >Send Message to <span id="usersNumber">Retreiving Phone Number</span></h6>
+          <textarea id="message" rows="4" cols="50" placeholder="Enter your message."></textarea>
+          <input type="hidden" id="msg-phone-number">
+          <input type="hidden" id="msg-access-token">
+        </div>
+        <div class="msg-btn-container">
+          <h6 class="send-btn" id="sendMessage">Send</h6>
+          <h6 class="cancel-btn" id="close-msg">Cancel</h6>
+        </div>
+      </div>
+    </section>
+
+            <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+        <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+        <!-- Axios For getting the data from globelabs -->
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+          // Your web app's Firebase configuration
+          // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+          const firebaseConfig = {
+          apiKey: "AIzaSyDwtr3FT5EcxaR8J_TqUm0TDsZf3uflZjc",
+          authDomain: "alerto-barangay-8b131.firebaseapp.com",
+          databaseURL: "https://alerto-barangay-8b131-default-rtdb.firebaseio.com",
+          projectId: "alerto-barangay-8b131",
+          storageBucket: "alerto-barangay-8b131.appspot.com",
+          messagingSenderId: "737869365215",
+          appId: "1:737869365215:web:e2da71819750b21d9cce6a",
+          measurementId: "G-27R0YR9BJS"
+          };
+          // Initialize Firebase
+          firebase.initializeApp(firebaseConfig);
+          firebase.analytics();
+
+          //-------------GET ALL DATA-------------//
+
+        function SelectAllData(){
+          firebase.database().ref('Report').once('value',
+          function(AllRecords){
+            AllRecords.forEach(
+              function(CurrentRecord){
+                var comment = CurrentRecord.val().comments;
+                var date = CurrentRecord.val().date;
+                var phone_no = CurrentRecord.val().phone;
+                var status = CurrentRecord.val().status;
+                var incident = CurrentRecord.val().type;
+                AddItemsToTable(comment,date,phone_no,status,incident);
+
+              }
+            )
+          });
+        }
+
+        window.onload = SelectAllData;
+
+//-----------FILLING THE TABLE-------------//
+
+        
+        function AddItemsToTable(comment,date,phone_no,status,incident){
+
+          var phoneCode = phone_no;
+          if(!phone_no)phoneCode = "rUBooE6IMjoXphq7ajkCBkeayskEg8eCe6q5Buk4preFzyAX6f7BLont7gXLbu7dxjKHyeMG4Hd5Xk9H7bAgbI4Kykah8oo9eFMG7gGIneM5rCLaLarhKzeEgCMLTKzKKEqceqkCGeLKLhKpMKjCnA7MoIM4oKBF6xyAphMGAMKI4AXKGHeEMXxHoKxBLHpqXrkurbLXLtKxAkqfXKp4aFn7q9Eub6go4CBgeL9s4zaMBCEbo7phn9oBdI64b4pU"; //fallback number code if code from firebase is undefined
+          
+          var tbody = document.getElementById('tbody1');
+          var trow = document.createElement('tr');
+          var td1 = document.createElement('td');
+          var td2 = document.createElement('td');
+          var td3 = document.createElement('td');
+          var td4 = document.createElement('td');
+          var td5 = document.createElement('td');
+          td1.innerHTML= "<h6 id='" + phoneCode + "' class='message-btn'>Message<h6>"; //in send message button users code will be stored which when clicked will be decoded to phone number and accesss token
+          td2.innerHTML= date;
+          td3.innerHTML= comment;
+          td4.innerHTML= incident;
+          td5.innerHTML= status;
+          trow.appendChild(td1); 
+          trow.appendChild(td2); 
+          trow.appendChild(td3); 
+          trow.appendChild(td4); 
+          trow.appendChild(td5);
+          tbody.appendChild(trow);
+          $(".message-btn").click(function(){
+            var phoneCode = String(this.id);
+            console.log(phoneCode);
+            let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + phoneCode;
+            sms.post(getLink).then(function (response) {
+              const data = response.data;
+              const access_token = data.access_token;
+              const subscriber_number = data.subscriber_number;
+              // console.log(data);
+              $("#usersNumber").html(subscriber_number);
+              $("#msg-phone-number").val(subscriber_number);
+              $("#msg-access-token").val(access_token);
+              $("#message-dialog").show(500);
+            })
+          });
+        }
+
+
+      //-----------SMS API-------------//  
+    const sms = axios.create({
+      baseURL: 'https://developer.globelabs.com.ph',
+      headers: {'Access-Control-Allow-Origin': 'https://developer.globelabs.com.ph',
+                'Access-Control-Allow-Methods' : 'POST'}
+    });
+
+    const appId = "94MguznMMeCb5ip5KpcMnGC8k4XzuxXL";
+    const appSercet = "9187c95f19058452262e5846fadaab53a254a3e11de41dea6a438edc402adc00";
+    const shortCode = "21585411";
+    const shortCodeLast4Digit = "5411";
+    const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
+
+    function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber){
+      let sendLink = "https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/"+ shortCodeLast4Digit +"/requests?access_token=" + usersAccessToken;
+      // console.log(usersAccessToken);
+      sms.post(sendLink,{
+        "outboundSMSMessageRequest": {
+          "clientCorrelator": shortCode,
+          "senderAddress": shortCodeLast4Digit,
+          "outboundSMSTextMessage": {"message": message},
+          "address": usersPhoneNumber
+        }
+      })
+      .then(function (response) {
+        // console.log(response);
+        clearMessageData();
+        alert("Message Sent");
+      })
+    }
+
+    function closeMessageDialog(){
+      document.getElementById("message-dialog").classList.add("hidden");
+    }
+
+    function decodeUsersData(currentUserCode){
+      //get access token and phone number of users by decoding
+      let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + currentUserCode;
+      sms.post(getLink).then(function (response) {
+        const data = response.data;
+        const access_token = data.access_token;
+        const subscriber_number = data.subscriber_number;
+        const userData = {
+          "accessToken" : access_token,
+          "phoneNumber" :subscriber_number
+        }
+        return userData;
+      })
+    }
+
+    function clearMessageData(){
+      $("#message").val("");
+      $("#msg-phone-number").val("");
+      $("#msg-access-token").val("");
+      $("#message-dialog").hide(500);
+    }
+
+    $(document).ready(function(){
+      $("#close-msg").click(function(){
+        clearMessageData();
+      });
+
+      $("#message-dialog").hide();
+
+      $("#sendMessage").click(function(){
+        var message = $("#message").val();
+        var phoneNumber = $("#msg-phone-number").val();
+        var accessToken = $("#msg-access-token").val();
+        if(!message){
+          alert("Message is Required");
+          return;
+        }
+        if(!phoneNumber || !accessToken){
+          alert("Error in the server occured. Please reload the page");
+          return;
+        }
+        sendMessage(message, accessToken,phoneNumber);
+      });
+
+    });
+
+    
+
+    </script>
+
+
+  </body>
+
+</html>

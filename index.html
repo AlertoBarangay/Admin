@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!----font awesome-->
+<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" data-auto-replace-svg="nest"></script>
+
+<!---flaticon-->
+<link rel="stylesheet" type="text/css" href="C:\Users\Jan Cuvinar\Desktop\CVSu - e Guidance\font\flaticon.css">
+
+<!--------CSS------->
+<link rel="stylesheet" href="CvsuGuidance.css">
+
+    <link rel="stylesheet" href="ol\ol.css" type="text/css">
+    <style>
+	html,body
+	{
+		height:100%;
+		text-align: center;
+		margin: 0;
+		padding: 0;
+	}
+    .map {
+        height: 100%;
+        width: 100%;
+		margin-bottom: 6px;
+    }
+	  
+	.popup {
+        border-radius: 5px;
+        border: 1px solid grey;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2px;
+    }
+    </style>
+    <script src="ol\ol.js"></script>
+    <title>Alerto Barangay</title>
+  </head>
+  <body>
+    <div id="map" class="map">
+		<div id="popup" style="background-color:white;width:200px;height:80px;text-align:center;border-radius: epx;padding: 10px;">
+			<div class="overlay-text" id="mobile_no" style="text-align:center;font-weight:bold;"></div>
+			<div class="overlay-text" id="type" style="text-align:center;font-weight:bold;"></div>
+			<div class="overlay-text" id="comment" style="text-align:center;font-weight:bold;"></div>
+			<div class="overlay-text" id="status" style="text-align:center;font-weight:bold;"></div>
+		</div>
+		 <!--navigation--> 
+		 <nav class="navbar bg-dark navbar-dark navbar-expand-md">
+			<div class="container">
+			  
+			  <a href="" class="navbar-brand"><img src="logo.png" alt="logo" title="logo"></a>
+  
+			  <button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#nabvarResponsive">
+				<span class="navbar-toggler-icon"></span>
+			  </button>
+  
+			  <div class="collapse navbar-collapse" id="nabvarResponsive">
+				<ul class="navbar-nav ml-auto">
+  
+				  <li class="nav-item active">
+					  <a class="nav-link" href="index.html">
+					  </i>Home</a>
+				  </li>
+  
+				  </li>
+  
+				  <li class="nav-item dropdown">
+					  <a class="nav-link dropdown-toggle" href="" id="#navbarDropdown" 
+						role="button" data-toggle="dropdown">Emergency Report</a>
+							<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<a class="dropdown-item" href="Emergency.html">Reports</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="Update.html">Update</a>
+						  </div>
+					</li>
+  
+				  <li class="nav-item active">
+					  <a class="nav-link" href="Resident.html">
+					  </i>Resident Information</a>
+				  </li>
+				</ul>
+			  </div>
+			</div>    
+		  </nav>
+</div>
+	
+	<div id="popup" style="background-color:White;width:100px;height:50px;text-align:center;">
+		<span class="overlay-text" id="comment"></span>
+	</div>
+	
+	<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+	const firebaseConfig = {
+	apiKey: "AIzaSyDwtr3FT5EcxaR8J_TqUm0TDsZf3uflZjc",
+	authDomain: "alerto-barangay-8b131.firebaseapp.com",
+	databaseURL: "https://alerto-barangay-8b131-default-rtdb.firebaseio.com",
+	projectId: "alerto-barangay-8b131",
+	storageBucket: "alerto-barangay-8b131.appspot.com",
+	messagingSenderId: "737869365215",
+	appId: "1:737869365215:web:e2da71819750b21d9cce6a",
+	measurementId: "G-27R0YR9BJS"
+	};
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+  function writeUserData(userId,  lat, lon) {
+  firebase.database().ref('/' + userId).set({
+    lat: lat,    
+    lon,lon
+  });
+}
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([120.97617, 14.42307]),
+          zoom: 17
+        })
+      });
+	    var fire = new ol.style.Style({
+			image: new ol.style.Icon({
+			  anchor: [0.5, 1],
+			  src: 'fire3.png'
+			})
+		  });
+		  
+		  var others = new ol.style.Style({
+			image: new ol.style.Icon({
+			  anchor: [0.5, 1],
+			  src: 'marker.png'
+			})
+		  });
+		  
+		  var crime = new ol.style.Style({
+			image: new ol.style.Icon({
+			  anchor: [0.5, 1],
+			  src: 'crime.png'
+			})
+		  });
+		  
+		  var health = new ol.style.Style({
+			image: new ol.style.Icon({
+			  anchor: [0.5, 1],
+			  src: 'health.png'
+			})
+		  });
+		  
+	var layermarkers = new ol.layer.Vector({
+		  source: new ol.source.Vector(),
+		  style: styleFunction
+		  
+		});
+		
+		
+		map.addLayer(layermarkers);
+
+		var ref = firebase.database().ref('Report');
+		
+ref.on('child_added', (data) => {
+
+
+			  var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([data.val().lon, data.val().lat])));
+			  marker.ol_uid=data.key;
+			  
+marker.style=data.val().type;
+			 marker.comments=data.val().comments;
+
+			 marker.mobile_no=data.val().mobile_no;
+
+			 marker.type=data.val().type;
+
+			 marker.status=data.val().status;
+			 
+		layermarkers.getSource().addFeature(marker);
+
+		
+});
+
+ref.on('child_changed', (data) => {
+
+var x= layermarkers.getSource().getFeatureByUid(data.key);
+layermarkers.getSource().removeFeature(x);
+ var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([data.val().lon, data.val().lat])));
+		marker.ol_uid=data.key;
+		marker.style=data.val().type;
+		layermarkers.getSource().addFeature(marker);
+});
+
+ref.on('child_removed', (data) => {
+ var x= layermarkers.getSource().getFeatureByUid(data.key);
+layermarkers.getSource().removeFeature(x);
+});
+
+function styleFunction(feature) {
+	if (feature.style=="Fire Emergency")
+	{
+		return fire;
+	}
+	else if (feature.style=="Health Emergency")
+	{
+		return health;
+	}
+	else if (feature.style=="Crime Incident")
+	{
+		return crime;
+	}
+	else if (feature.style=="Others")
+	{
+		return others;
+	}
+}
+
+var overlayContainerElement = document.getElementById('popup');
+var overlayLayer = new ol.Overlay({element:overlayContainerElement});
+map.addOverlay(overlayLayer);
+map.on('click',function(e){
+overlayLayer.setPosition(undefined);
+map.forEachFeatureAtPixel(e.pixel,function(feature,layer){
+document.getElementById("comment").innerHTML=feature.comments;
+document.getElementById("mobile_no").innerHTML=feature.mobile_no;
+document.getElementById("status").innerHTML=feature.status;
+document.getElementById("type").innerHTML=feature.type;
+overlayLayer.setPosition(e.coordinate);
+console.log(overlayContainerElement);
+
+});
+});
+		 /*var myRef = firebase.database().ref('/1');
+			myRef.on('value', (snapshot) => {
+			  const data = snapshot.val();
+			  console.log(data.lat);
+			  layermarkers.getSource().clear();
+			  var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([data.lat, data.lon])));
+		layermarkers.getSource().addFeature(marker);
+		map.getView().setCenter(ol.proj.transform([data.lat, data.lon], 'EPSG:4326', 'EPSG:3857'));
+    map.getView().setZoom(19);
+		
+			});*/
+
+    </script>
+  </body>
+</html>
