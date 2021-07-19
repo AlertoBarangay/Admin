@@ -240,7 +240,9 @@
             var phoneCode = String(this.id);
             console.log(phoneCode);
             let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + phoneCode;
-            sms.post(getLink).then(function (response) {
+            
+            sms.post(getLink)
+            .then(function (response) {
               const data = response.data;
               const access_token = data.access_token;
               const subscriber_number = data.subscriber_number;
@@ -250,6 +252,9 @@
               $("#msg-access-token").val(access_token);
               $("#message-dialog").show(500);
             })
+            .catch(function(){
+              alert('CORS ERROR: \n To be able to send a message on localhost chrome should be in development mode: \n First go to chrome.exe in cmd \n sample \n Run cd C:/Program Files\Google\Chrome\Application \n Then Run chrome.exe --user-data-dir="C:/Chrome dev session" --disable-web-security');
+            })
           });
         }
 
@@ -257,8 +262,13 @@
       //-----------SMS API-------------//  
     const sms = axios.create({
       baseURL: 'https://developer.globelabs.com.ph',
-      headers: {'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods' : 'POST'}
+      headers: {'Access-Control-Allow-Origin':'*',
+                'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Credentials': 'true'
+              },
+              mode: 'no-cors',
+              crossorigin:true,
     });
 
     const appId = "94MguznMMeCb5ip5KpcMnGC8k4XzuxXL";
@@ -283,6 +293,8 @@
         clearMessageData();
         alert("Message Sent");
       })
+
+     
     }
 
     function closeMessageDialog(){
@@ -292,6 +304,7 @@
     function decodeUsersData(currentUserCode){
       //get access token and phone number of users by decoding
       let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + currentUserCode;
+      
       sms.post(getLink).then(function (response) {
         const data = response.data;
         const access_token = data.access_token;
@@ -302,6 +315,7 @@
         }
         return userData;
       })
+     
     }
 
     function clearMessageData(){
