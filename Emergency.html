@@ -253,7 +253,7 @@
               $("#message-dialog").show(500);
             })
             .catch(function(){
-              alert('CORS ERROR: \n To be able to send a message on localhost chrome should be in development mode: \n First go to chrome.exe in cmd \n sample \n Run cd C:/Program Files\Google\Chrome\Application \n Then Run chrome.exe --user-data-dir="C:/Chrome dev session" --disable-web-security');
+              alert('To be able to send a message on localhost chrome should be in development mode, in cmd run: \n "C:/Program Files/Google/Chrome/Application/chrome.exe" --disable-web-security --user-data-dir="C:/tmpChromeSession"');
             })
           });
         }
