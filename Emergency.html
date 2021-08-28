@@ -216,7 +216,7 @@
         function AddItemsToTable(comment,date,phone_no,status,incident){
 
           var phoneCode = phone_no;
-          if(!phone_no)phoneCode = "rUBooE6IMjoXphq7ajkCBkeayskEg8eCe6q5Buk4preFzyAX6f7BLont7gXLbu7dxjKHyeMG4Hd5Xk9H7bAgbI4Kykah8oo9eFMG7gGIneM5rCLaLarhKzeEgCMLTKzKKEqceqkCGeLKLhKpMKjCnA7MoIM4oKBF6xyAphMGAMKI4AXKGHeEMXxHoKxBLHpqXrkurbLXLtKxAkqfXKp4aFn7q9Eub6go4CBgeL9s4zaMBCEbo7phn9oBdI64b4pU"; //fallback number code if code from firebase is undefined
+          if(!phone_no)phoneCode = "RtjapXyuyAodAt5kyqjhoEEM9u8ddq7CBk9pyIRxqXAudzep8szBLRnhRMdeGuxr9kyH4jko9CMrn8AtGg86ACgRA6Xfj5ek9hGz4k4Cx4kApszEadzHAdeEgCMLTKzrEygceqkCGeapqHLnkMesgo46BCpMenqh6eAopf9K8jdC8Anz4t9qkxzCdM9XrHKBdkRuqbLKXhbde74sRkqRzuXy9MyInqdrRCbkEeau7ayGMhGzoKGtqRp5zuR5Ryat"; //fallback number code if code from firebase is undefined
           
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
@@ -301,22 +301,7 @@
       document.getElementById("message-dialog").classList.add("hidden");
     }
 
-    function decodeUsersData(currentUserCode){
-      //get access token and phone number of users by decoding
-      let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + currentUserCode;
-      
-      sms.post(getLink).then(function (response) {
-        const data = response.data;
-        const access_token = data.access_token;
-        const subscriber_number = data.subscriber_number;
-        const userData = {
-          "accessToken" : access_token,
-          "phoneNumber" :subscriber_number
-        }
-        return userData;
-      })
-     
-    }
+    
 
     function clearMessageData(){
       $("#message").val("");
