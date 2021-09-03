@@ -87,6 +87,8 @@
         color: #562eb3;
       }
 
+     
+
         </style>
   </head>
 
@@ -95,7 +97,7 @@
 <nav class="navbar bg-dark navbar-dark navbar-expand-md">
   <div class="container">
     
-    <a href="" class="navbar-brand"><img src="logo.png" alt="logo" title="logo"></a>
+    <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse"
       data-target="#nabvarResponsive">
@@ -135,10 +137,14 @@
       <table class="table">
         <thead>
           <th>Message</th>
+          <th>Phone Number</th>
           <th>Date</th>
           <th>Comment</th>
           <th>Incident</th>
           <th>Status</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+
         </thead>
 
         <tbody id="tbody1">
@@ -190,20 +196,24 @@
           firebase.analytics();
 
           //-------------GET ALL DATA-------------//
-
+        let test = false;
         function SelectAllData(){
-          firebase.database().ref('Report').once('value',
+          firebase.database().ref('Report').on('value',
           function(AllRecords){
+            $(".reportRow").remove();
             AllRecords.forEach(
               function(CurrentRecord){
+                const record = CurrentRecord.val();
                 var id = CurrentRecord.key;
-                var comment = CurrentRecord.val().comments;
-                var date = CurrentRecord.val().date;
-                var phone = CurrentRecord.val().phone;
-                var status = CurrentRecord.val().status;
-                var incident = CurrentRecord.val().type;
-                AddItemsToTable(id,comment,date,phone,status,incident);
-
+                var comment = record.comments;
+                var date = record.date;
+                var phone = record.phone;
+                var status = record.status;
+                var incident = record.type;
+                var lat = record.lat;
+                var lon = record.lon;
+                var tableData = [phone.subscriberNumber,date,comment,incident,status,lat,lon];
+                AddItemsToTable(tableData,phone,id);
               }
             )
           });
@@ -214,24 +224,21 @@
 //-----------FILLING THE TABLE-------------//
 
         
-        function AddItemsToTable(id,comment,date,phone,status,incident){
+        function AddItemsToTable(tableData,phone,id){
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
-          var td1 = document.createElement('td');
-          var td2 = document.createElement('td');
-          var td3 = document.createElement('td');
-          var td4 = document.createElement('td');
-          var td5 = document.createElement('td');
-          td1.innerHTML= "<h6 id='" + phone.accessToken + "' class='message-btn'>Message<h6>"; //in send message button users code will be stored which when clicked will be decoded to phone number and accesss token
-          td2.innerHTML= date;
-          td3.innerHTML= comment;
-          td4.innerHTML= incident;
-          td5.innerHTML= status;
-          trow.appendChild(td1); 
-          trow.appendChild(td2); 
-          trow.appendChild(td3); 
-          trow.appendChild(td4); 
-          trow.appendChild(td5);
+          trow.className = "reportRow";
+
+          var tdMessage = document.createElement('td');
+          tdMessage.innerHTML= "<h6 id='" + phone.accessToken + "' class='message-btn'>Message<h6>"; 
+          trow.appendChild(tdMessage); 
+          for(var i = 0; i < tableData.length; i++ ){
+            var td = document.createElement('td');
+            td.innerHTML = tableData[i] || '';
+            trow.appendChild(td);
+          }
+          
+          trow.id = id;
           tbody.appendChild(trow);
           $("#" + phone.accessToken).click(function(){
             // sendMessage('test',phone.accessToken,phone.subscriberNumber);
@@ -242,19 +249,6 @@
           });
         }
 
-
-      //-----------SMS API-------------//  
-    const sms = axios.create({
-      baseURL: 'https://developer.globelabs.com.ph',
-      headers: {'Access-Control-Allow-Origin':'*',
-                'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Credentials': 'true'
-              },
-              mode: 'no-cors',
-              crossorigin:true,
-    });
-
     const appId = "94MguznMMeCb5ip5KpcMnGC8k4XzuxXL";
     const appSercet = "9187c95f19058452262e5846fadaab53a254a3e11de41dea6a438edc402adc00";
     const shortCode = "21585411";
@@ -262,9 +256,9 @@
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
     function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber){
-      let sendLink = "http://localhost:80/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
+      let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
       // console.log(usersAccessToken);
-      sms.get(sendLink)
+      axios.get(sendLink)
       .then(function (response) {
         console.log(response);
         clearMessageData();
