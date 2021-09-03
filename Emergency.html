@@ -171,7 +171,7 @@
         <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
 
         <!-- Axios For getting the data from globelabs -->
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.js"></script>
         <script>
           // Your web app's Firebase configuration
           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -196,12 +196,13 @@
           function(AllRecords){
             AllRecords.forEach(
               function(CurrentRecord){
+                var id = CurrentRecord.key;
                 var comment = CurrentRecord.val().comments;
                 var date = CurrentRecord.val().date;
-                var phone_no = CurrentRecord.val().phone;
+                var phone = CurrentRecord.val().phone;
                 var status = CurrentRecord.val().status;
                 var incident = CurrentRecord.val().type;
-                AddItemsToTable(comment,date,phone_no,status,incident);
+                AddItemsToTable(id,comment,date,phone,status,incident);
 
               }
             )
@@ -213,11 +214,7 @@
 //-----------FILLING THE TABLE-------------//
 
         
-        function AddItemsToTable(comment,date,phone_no,status,incident){
-
-          var phoneCode = phone_no;
-          if(!phone_no)phoneCode = "RtjapXyuyAodAt5kyqjhoEEM9u8ddq7CBk9pyIRxqXAudzep8szBLRnhRMdeGuxr9kyH4jko9CMrn8AtGg86ACgRA6Xfj5ek9hGz4k4Cx4kApszEadzHAdeEgCMLTKzrEygceqkCGeapqHLnkMesgo46BCpMenqh6eAopf9K8jdC8Anz4t9qkxzCdM9XrHKBdkRuqbLKXhbde74sRkqRzuXy9MyInqdrRCbkEeau7ayGMhGzoKGtqRp5zuR5Ryat"; //fallback number code if code from firebase is undefined
-          
+        function AddItemsToTable(id,comment,date,phone,status,incident){
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
           var td1 = document.createElement('td');
@@ -225,7 +222,7 @@
           var td3 = document.createElement('td');
           var td4 = document.createElement('td');
           var td5 = document.createElement('td');
-          td1.innerHTML= "<h6 id='" + phoneCode + "' class='message-btn'>Message<h6>"; //in send message button users code will be stored which when clicked will be decoded to phone number and accesss token
+          td1.innerHTML= "<h6 id='" + phone.accessToken + "' class='message-btn'>Message<h6>"; //in send message button users code will be stored which when clicked will be decoded to phone number and accesss token
           td2.innerHTML= date;
           td3.innerHTML= comment;
           td4.innerHTML= incident;
@@ -236,25 +233,12 @@
           trow.appendChild(td4); 
           trow.appendChild(td5);
           tbody.appendChild(trow);
-          $(".message-btn").click(function(){
-            var phoneCode = String(this.id);
-            console.log(phoneCode);
-            let getLink = "/oauth/access_token?app_id="+ appId +"&app_secret="+ appSercet +"&code=" + phoneCode;
-            
-            sms.post(getLink)
-            .then(function (response) {
-              const data = response.data;
-              const access_token = data.access_token;
-              const subscriber_number = data.subscriber_number;
-              // console.log(data);
-              $("#usersNumber").html(subscriber_number);
-              $("#msg-phone-number").val(subscriber_number);
-              $("#msg-access-token").val(access_token);
-              $("#message-dialog").show(500);
-            })
-            .catch(function(){
-              alert('CORS Error: \n To be able to send a message. Chrome should be in development mode, in cmd run: \n "C:/Program Files/Google/Chrome/Application/chrome.exe" --disable-web-security --user-data-dir="C:/tmpChromeSession" \n Then use the new tab opened to be able to send a request at globe lab. ');
-            })
+          $("#" + phone.accessToken).click(function(){
+            // sendMessage('test',phone.accessToken,phone.subscriberNumber);
+            $("#usersNumber").html(phone.subscriberNumber);
+            $("#msg-phone-number").val(phone.subscriberNumber);
+            $("#msg-access-token").val(phone.accessToken);
+            $("#message-dialog").show(500);
           });
         }
 
@@ -278,18 +262,11 @@
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
     function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber){
-      let sendLink = "https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/"+ shortCodeLast4Digit +"/requests?access_token=" + usersAccessToken;
+      let sendLink = "http://localhost:80/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
       // console.log(usersAccessToken);
-      sms.post(sendLink,{
-        "outboundSMSMessageRequest": {
-          "clientCorrelator": shortCode,
-          "senderAddress": shortCodeLast4Digit,
-          "outboundSMSTextMessage": {"message": message},
-          "address": usersPhoneNumber
-        }
-      })
+      sms.get(sendLink)
       .then(function (response) {
-        // console.log(response);
+        console.log(response);
         clearMessageData();
         alert("Message Sent");
       })
