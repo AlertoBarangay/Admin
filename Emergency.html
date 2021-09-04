@@ -87,7 +87,12 @@
         color: #562eb3;
       }
 
-     
+      .alarm-indicator {
+        width: 20px;
+        height: 20px;
+        background-color: red;
+        border-radius: 50%;
+      }
 
         </style>
   </head>
@@ -133,17 +138,16 @@
   </div>    
 </nav>
     <div class="container mt-3">
-          
+      
       <table class="table">
         <thead>
           <th>Message</th>
           <th>Phone Number</th>
           <th>Date</th>
-          <th>Comment</th>
+          <th>Description</th>
           <th>Incident</th>
           <th>Status</th>
-          <th>Latitude</th>
-          <th>Longitude</th>
+          <th>Adress</th>
 
         </thead>
 
@@ -160,6 +164,7 @@
           <textarea id="message" rows="4" cols="50" placeholder="Enter your message."></textarea>
           <input type="hidden" id="msg-phone-number">
           <input type="hidden" id="msg-access-token">
+          <input type="hidden" id="report-id">
         </div>
         <div class="msg-btn-container">
           <h6 class="send-btn" id="sendMessage">Send</h6>
@@ -204,16 +209,17 @@
             AllRecords.forEach(
               function(CurrentRecord){
                 const record = CurrentRecord.val();
+                firebase.database().ref('isAlarmOn').set(record.isActionWaiting);
                 var id = CurrentRecord.key;
-                var comment = record.comments;
-                var date = record.date;
+                var comment = record.description;
+                var date = record.dateTime;
                 var phone = record.phone || {};
                 var status = record.status;
-                var incident = record.type;
-                var lat = record.lat;
-                var lon = record.lon;
-                var tableData = [phone.subscriberNumber,date,comment,incident,status,lat,lon];
-                AddItemsToTable(tableData,phone,id);
+                var incident = record.typeOfReport;
+                var address = "";
+                if(record.fullAddress)address = record.fullAddress.address
+                var tableData = [phone.subscriberNumber,date,comment,incident,status,address];
+                AddItemsToTable(tableData,phone,id,record.isActionWaiting);
               }
             )
           });
@@ -224,9 +230,10 @@
 //-----------FILLING THE TABLE-------------//
 
         
-        function AddItemsToTable(tableData,phone,id){
+        function AddItemsToTable(tableData,phone,id,isActionWaiting){
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
+          if(isActionWaiting)trow.style.backgroundColor = 'rgba(255,0,0,0.3)'
           trow.className = "reportRow";
 
           var tdMessage = document.createElement('td');
@@ -240,11 +247,12 @@
           
           trow.id = id;
           tbody.appendChild(trow);
-          $("#" + phone.accessToken).click(function(){
+          $("#" + id).click(function(){
             // sendMessage('test',phone.accessToken,phone.subscriberNumber);
             $("#usersNumber").html(phone.subscriberNumber);
             $("#msg-phone-number").val(phone.subscriberNumber);
             $("#msg-access-token").val(phone.accessToken);
+            $("#report-id").val(id);
             $("#message-dialog").show(500);
           });
         }
@@ -255,14 +263,17 @@
     const shortCodeLast4Digit = "5411";
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
-    function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber){
+    function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber,reportId){
       let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
       // console.log(usersAccessToken);
       axios.get(sendLink)
       .then(function (response) {
         console.log(response);
         clearMessageData();
+        setIsActioned(reportId,false)
         alert("Message Sent");
+      }).catch(function(error){
+        console.error(error);
       })
 
      
@@ -272,7 +283,16 @@
       document.getElementById("message-dialog").classList.add("hidden");
     }
 
-    
+    function setIsActioned(reportId = null,isAction = true){
+      if(!reportId)return;
+      firebase.database().ref('Reports').child(reportId).child('isActionWaiting').set(isAction);
+      const statusRef = firebase.database().ref('Reports').child(reportId).child('status');
+      if(!isAction){
+        statusRef.set('Action deployed');
+      }else{
+        statusRef.set('Waiting for action.');
+      }
+    }
 
     function clearMessageData(){
       $("#message").val("");
@@ -292,6 +312,8 @@
         var message = $("#message").val();
         var phoneNumber = $("#msg-phone-number").val();
         var accessToken = $("#msg-access-token").val();
+        var reportId = $("#report-id").val();
+
         if(!message){
           alert("Message is Required");
           return;
@@ -300,7 +322,7 @@
           alert("Error in the server occured. Please reload the page");
           return;
         }
-        sendMessage(message, accessToken,phoneNumber);
+        sendMessage(message, accessToken,phoneNumber,reportId);
       });
 
     });
