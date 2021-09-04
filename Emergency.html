@@ -198,7 +198,7 @@
           //-------------GET ALL DATA-------------//
         let test = false;
         function SelectAllData(){
-          firebase.database().ref('Report').on('value',
+          firebase.database().ref('Reports').on('value',
           function(AllRecords){
             $(".reportRow").remove();
             AllRecords.forEach(
@@ -207,7 +207,7 @@
                 var id = CurrentRecord.key;
                 var comment = record.comments;
                 var date = record.date;
-                var phone = record.phone;
+                var phone = record.phone || {};
                 var status = record.status;
                 var incident = record.type;
                 var lat = record.lat;
