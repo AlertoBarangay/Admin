@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+<link rel="stylesheet" href="ol\ol.css" type="text/css">
 <!-- jQuery library -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
@@ -15,6 +15,7 @@
 
 <!----font awesome-->
 <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" data-auto-replace-svg="nest"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!---flaticon-->
 <!-- <link rel="stylesheet" type="text/css" href="C:\Users\Jan Cuvinar\Desktop\CVSu - e Guidance\font\flaticon.css"> -->
@@ -109,7 +110,7 @@
       }
 
       p {
-        font-size: 12px;
+        font-size: 9px;
       }
 
 
@@ -133,20 +134,11 @@
 
         <li class="nav-item active">
             <a class="nav-link" href="index.html">
-            </i>Home</a>
+            </i>Reports</a>
         </li>
 
         </li>
 
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="" id="#navbarDropdown" 
-              role="button" data-toggle="dropdown">Emergency Report</a>
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <a class="dropdown-item" href="Emergency.html">Reports</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="Update.html">Update</a>
-                </div>
-          </li>
 
         <li class="nav-item active">
             <a class="nav-link" href="Resident.html">
@@ -156,7 +148,7 @@
     </div>
   </div>    
 </nav>
-    <main class="row m-0" id="main-container">
+    <main class="row m-0 p-5" id="main-container">
       
     </main>
     <div class="container mt-3 d-none">
@@ -179,21 +171,7 @@
     </div>
 
     <!-- pop up dialog for message -->
-    <section class="msg-dialog" id="message-dialog">
-      <div class="msg-container">
-        <div>
-          <h6 >Send Message to <span id="usersNumber">Retreiving Phone Number</span></h6>
-          <textarea id="message" rows="4" cols="50" placeholder="Enter your message."></textarea>
-          <input type="hidden" id="msg-phone-number">
-          <input type="hidden" id="msg-access-token">
-          <input type="hidden" id="report-id">
-        </div>
-        <div class="msg-btn-container">
-          <h6 class="send-btn" id="sendMessage">Send</h6>
-          <h6 class="cancel-btn" id="close-msg">Cancel</h6>
-        </div>
-      </div>
-    </section>
+    
 
             <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
@@ -208,8 +186,7 @@
         <script src="ol\ol.js"></script>
         <script src="mapConfig.js"></script>
         
-        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+       
         <script>
           // Your web app's Firebase configuration
           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -268,9 +245,9 @@
           <div class="px-2 py-4 col-12 col-md-6 col-lg-4 col-xl-3">
           <div class="shadow-sm rounded-lg border border-light p-1 bg-white w-100">
               <div class="w-100 bg-secondary rounded-lg overflow-hidden position-relative">
-                <div id="map" class="map"> </div>
+                <div id="map` + id +`"  class="map"> </div>
+                <div id="popup`+id+`" style="background-color:white;text-align:center;border-radius: 1rem;padding: 5px;"></div>
                 <div class="text-white bg-dark m-0 w-50 position-absolute d-flex" style="bottom: 0; padding: 3px; opacity: 0.7;">
-                  <ion-icon style="font-size: 30px;" name="flame"></ion-icon>
                   <p class="m-0">
                   ` + data.address + `  
                   </p>
@@ -288,7 +265,7 @@
               <div class="my-2">
                 <h5> ` + data.typeOfReport + `	</h5>
                 <p  class="bg-dark text-white w-max p-1 rounded-sm mx-auto" style="font-size: 8px">
-                ` + data.phone.subscriberNumber + `  
+                ` + data.reportBy + ' | ' + data.phone.subscriberNumber + `  
                 </p>
               </div>
                 <h6 class="text-secondary">
@@ -297,10 +274,8 @@
                 
               </div>
               <div class="d-flex">
-                <h6 class="btn btn-primary w-100 h-100 mr-2" style="height: 23px;">Message</h6>
-                <div class="h-100 btn btn-primary" >
-                  <ion-icon class="text-white"  style="height: 23px;" name="scan"></ion-icon>
-                </div>
+                <p class="btn btn-primary w-100 mr-2" style="font-size: 12px" id="message`+id+`">Message</p>
+                <p class="btn bg-white border text-secondary w-100" style="border-color: #6C757D;font-size: 12px" id="maxMap`+id+`">Maximize Map</p>
               </div>
             </div>
             </div>
@@ -311,6 +286,13 @@
           }else{
             $("#main-container").prepend(dataCard);
           }
+          addMapLayer(data,id);
+          $("#message" + id).click(function(){
+            sendMessage(data.phone.accessToken,data.phone.subscriberNumber,id)
+          });
+          $("#maxMap" + id).click(function(){
+            showMaxMap(data,id);
+          });
         }
         
         function AddItemsToTable(tableData,phone,id,isActionWaiting){
@@ -346,20 +328,37 @@
     const shortCodeLast4Digit = "5411";
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
-    function sendMessage(message = "test message",usersAccessToken, usersPhoneNumber,reportId){
-      let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
-      // console.log(usersAccessToken);
-      axios.get(sendLink)
-      .then(function (response) {
-        console.log(response);
-        clearMessageData();
-        setIsActioned(reportId,false)
-        alert("Message Sent");
-      }).catch(function(error){
-        console.error(error);
+    function sendMessage(usersAccessToken, usersPhoneNumber,reportId){
+      console.log('test');
+      Swal.fire({
+        title: 'Send Message to ' + usersPhoneNumber,
+        input: 'textarea',
+        inputAttributes: {
+          autocapitalize: 'off',
+          placeholder : 'Enter your message'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Send Message',
+        showLoaderOnConfirm: true,
+        preConfirm: (message) => {
+          let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
+          // console.log(usersAccessToken);
+          axios.get(sendLink)
+          .then(function (response) {
+            setIsActioned(reportId,false);
+          }).catch(function(error){
+            console.error(error);
+          })
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Message Sent',
+          })
+        }
       })
-
-     
     }
 
     function closeMessageDialog(){
@@ -367,6 +366,7 @@
     }
 
     function setIsActioned(reportId = null,isAction = true){
+      console.log(reportId);
       if(!reportId)return;
       firebase.database().ref('Reports').child(reportId).child('isActionWaiting').set(isAction);
       const statusRef = firebase.database().ref('Reports').child(reportId).child('status');
@@ -375,6 +375,23 @@
       }else{
         statusRef.set('Waiting for action.');
       }
+    }
+
+    function showMaxMap(data,id){
+      const maxMapId = id + 'max';
+      Swal.fire({
+      html:
+        `<main class="m-auto" style="width:70vw;height :60vh">
+        <div id="map` + maxMapId +`"  > </div>
+        <div id="popup`+maxMapId+`" style="background-color:white;text-align:center;border-radius: 1rem;padding: 5px;"></div>
+        </main>`,
+      showCloseButton: true,
+      showCancelButton: false,
+      focusConfirm: false,
+      confirmButtonText:'Close',
+      width: '80vw'
+    })
+    addMapLayer(data,maxMapId);
     }
 
     function clearMessageData(){
