@@ -213,16 +213,12 @@
             AllReportRecords = AllRecords.val();
             $(".reportRow").remove();
             $("#main-container").html('');
+
+            let hasWaiting = false;
             AllRecords.forEach(
               function(CurrentRecord){
-
                 const record = CurrentRecord.val();
-                firebase.database().ref('isAlarmOn').get().then((snapshot)=>{
-                  const isAlarmOn = snapshot.val();
-                  if(isAlarmOn)return;
-                  firebase.database().ref('isAlarmOn').set(!record.isActionWaiting);
-                });
-                
+                if(!hasWaiting)hasWaiting = record.isActionWaiting;
                 var id = CurrentRecord.key;
                 var comment = record.description;
                 var date = record.dateTime;
@@ -236,6 +232,8 @@
                 addData(record,phone,id,record.isActionWaiting);
               }
             )
+            firebase.database().ref('isAlarmOn').set(hasWaiting);
+           
           });
         }
 
