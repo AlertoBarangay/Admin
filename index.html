@@ -188,6 +188,7 @@
         
        
         <script>
+          let AllReportRecords = {};
           // Your web app's Firebase configuration
           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
           const firebaseConfig = {
@@ -209,6 +210,7 @@
         function SelectAllData(){
           firebase.database().ref('Reports').on('value',
           function(AllRecords){
+            AllReportRecords = AllRecords.val();
             $(".reportRow").remove();
             $("#main-container").html('');
             AllRecords.forEach(
@@ -286,7 +288,7 @@
           }else{
             $("#main-container").prepend(dataCard);
           }
-          addMapLayer(data,id);
+          addMapLayer(data,id,AllReportRecords);
           $("#message" + id).click(function(){
             sendMessage(data.phone.accessToken,data.phone.subscriberNumber,id)
           });
@@ -391,7 +393,7 @@
       confirmButtonText:'Close',
       width: '80vw'
     })
-    addMapLayer(data,maxMapId);
+    addMapLayer(data,maxMapId,AllReportRecords);
     }
 
     function clearMessageData(){

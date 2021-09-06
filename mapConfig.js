@@ -1,4 +1,4 @@
-function addMapLayer(data,id){
+function addMapLayer(data,id,allData){
 	const longitude = data.fullAddress.longitude || 0;
 	const latitude = data.fullAddress.latitude || 0;
 	console.log(longitude,latitude);
@@ -16,46 +16,48 @@ function addMapLayer(data,id){
 	});
 
 	
-var layermarkers = new ol.layer.Vector({
-	source: new ol.source.Vector(),
-	style : styleFunction(data.typeOfReport)
-});
 
+	for(var key in allData){
+		const currentData = allData[key];
 
-map.addLayer(layermarkers);
+		var layermarkers = new ol.layer.Vector({
+			source: new ol.source.Vector(),
+			style : styleFunction(currentData.typeOfReport)
+		});
+		map.addLayer(layermarkers);
+		var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([currentData.fullAddress.longitude,currentData.fullAddress.latitude])));
+		marker.ol_uid= key;
+						
+		marker.style = styleFunction(currentData.typeOfReport);
+		marker.comments= currentData.description;
 
-var marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([longitude,latitude])));
-marker.ol_uid= id;
-			  
-marker.style = styleFunction(data.typeOfReport);
-marker.comments= data.description;
+		marker.mobile_no= currentData.phone.subscriberNumber;
 
-marker.mobile_no= data.phone.subscriberNumber;
+		marker.type= currentData.typeOfReport;
 
-marker.type= data.typeOfReport;
+		marker.status= currentData.status;
 
-marker.status= data.status;
+		layermarkers.getSource().addFeature(marker);
 
-layermarkers.getSource().addFeature(marker);
+		var overlayContainerElement = document.getElementById('popup' + id);
+		var overlayLayer = new ol.Overlay({element:overlayContainerElement});
+		map.addOverlay(overlayLayer);
+		map.on('click',function(e){
+		overlayContainerElement.innerHTML = "";
+		overlayLayer.setPosition(undefined);
+		map.forEachFeatureAtPixel(e.pixel,function(feature,layer){
+			const markerInfos = ['comments','mobile_no','status','type'];
+			for(var i = 0; i< markerInfos.length;i++){
+				let info = document.createElement('h6');
+				info.innerHTML = feature[markerInfos[i]] || '';
+				overlayContainerElement.appendChild(info);
+			}
+			overlayLayer.setPosition(e.coordinate);
+		});
+		});
 
-var overlayContainerElement = document.getElementById('popup' + id);
-var overlayLayer = new ol.Overlay({element:overlayContainerElement});
-map.addOverlay(overlayLayer);
-map.on('click',function(e){
-overlayContainerElement.innerHTML = "";
-overlayLayer.setPosition(undefined);
-map.forEachFeatureAtPixel(e.pixel,function(feature,layer){
-	const markerInfos = ['comments','mobile_no','status','type'];
-	for(var i = 0; i< markerInfos.length;i++){
-		let info = document.createElement('h6');
-		info.innerHTML = feature[markerInfos[i]] || '';
-		overlayContainerElement.appendChild(info);
 	}
-	overlayLayer.setPosition(e.coordinate);
-	console.log(overlayContainerElement);
 
-});
-});
 
 }
 

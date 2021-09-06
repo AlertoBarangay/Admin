@@ -113,13 +113,13 @@
           function(AllRecords){
             AllRecords.forEach(
               function(CurrentRecord){
-                var name = CurrentRecord.val().name;
-                var address = CurrentRecord.val().address;
-                var email = CurrentRecord.val().email;
-                var age = CurrentRecord.val().age;
-                var gender = CurrentRecord.val().gender;
-                var date_of_birth = CurrentRecord.val().date_of_birth;
-                var mobile_no = CurrentRecord.val().mobile_no;
+                var name = CurrentRecord.val().name || '';
+                var address = CurrentRecord.val().address || '';
+                var email = CurrentRecord.val().email || '';
+                var age = CurrentRecord.val().age || '';
+                var gender = CurrentRecord.val().gender || '';
+                var date_of_birth = CurrentRecord.val().date_of_birth || '';
+                var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
                 AddItemsToTable(name,address,email,age,gender,date_of_birth,mobile_no);
 
               }
