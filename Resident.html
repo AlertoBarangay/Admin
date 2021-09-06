@@ -71,9 +71,6 @@
           <th>Full Name</th>
           <th>Address</th>
           <th>Email</th>
-          <th>Age</th>
-          <th>Gender</th>
-          <th>Date of Birth</th>
           <th>Phone Number</th>
         </thead>
 
@@ -116,11 +113,8 @@
                 var name = CurrentRecord.val().name || '';
                 var address = CurrentRecord.val().address || '';
                 var email = CurrentRecord.val().email || '';
-                var age = CurrentRecord.val().age || '';
-                var gender = CurrentRecord.val().gender || '';
-                var date_of_birth = CurrentRecord.val().date_of_birth || '';
                 var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
-                AddItemsToTable(name,address,email,age,gender,date_of_birth,mobile_no);
+                AddItemsToTable(name,address,email,mobile_no);
 
               }
             )
@@ -131,30 +125,21 @@
 
 //-----------FILLING THE TABLE-------------//
 
-        function AddItemsToTable(name,address,email,age,gender,date_of_birth,mobile_no){
+        function AddItemsToTable(name,address,email,mobile_no){
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
           var td1 = document.createElement('td');
           var td2 = document.createElement('td');
           var td3 = document.createElement('td');
           var td4 = document.createElement('td');
-          var td5 = document.createElement('td');
-          var td6 = document.createElement('td');
-          var td7 = document.createElement('td');
           td1.innerHTML= name;
           td2.innerHTML= address;
           td3.innerHTML= email;
-          td4.innerHTML= age;
-          td5.innerHTML= gender;
-          td6.innerHTML= date_of_birth;
-          td7.innerHTML= mobile_no;
+          td4.innerHTML= mobile_no;
           trow.appendChild(td1); 
           trow.appendChild(td2); 
           trow.appendChild(td3); 
           trow.appendChild(td4);
-          trow.appendChild(td5);
-          trow.appendChild(td6);
-          trow.appendChild(td7); 
           tbody.appendChild(trow);
         }
 

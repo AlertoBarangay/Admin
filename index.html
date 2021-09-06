@@ -215,8 +215,14 @@
             $("#main-container").html('');
             AllRecords.forEach(
               function(CurrentRecord){
+
                 const record = CurrentRecord.val();
-                firebase.database().ref('isAlarmOn').set(record.isActionWaiting);
+                firebase.database().ref('isAlarmOn').get().then((snapshot)=>{
+                  const isAlarmOn = snapshot.val();
+                  if(isAlarmOn)return;
+                  firebase.database().ref('isAlarmOn').set(!record.isActionWaiting);
+                });
+                
                 var id = CurrentRecord.key;
                 var comment = record.description;
                 var date = record.dateTime;
