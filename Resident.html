@@ -1,5 +1,7 @@
 <html>
-  <head><title></title>
+  <head>
+    <title>Alerto Barangay</title>
+    <link rel="icon" href="/images/logo.png">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -29,6 +31,11 @@
         margin: 0;
         padding: 0;
       }
+
+      tr:nth-child(even){
+        background-color: rgba(108,117,125,0.1);
+      }
+
         </style>
   </head>
 
@@ -66,8 +73,9 @@
     </nav>
     <div class="container mt-3">
           
-      <table class="table">
-        <thead>
+      <table class="table bg-white shadow-sm">
+        <thead class="bg-dark text-white">
+          <th >Voter's ID</th>
           <th>Full Name</th>
           <th>Address</th>
           <th>Email</th>
@@ -106,15 +114,17 @@
           //-------------GET ALL DATA-------------//
 
         function SelectAllData(){
-          firebase.database().ref('Users').once('value',
+          firebase.database().ref('Users').orderByChild('votersid').once('value',
           function(AllRecords){
             AllRecords.forEach(
               function(CurrentRecord){
                 var name = CurrentRecord.val().name || '';
+                var votersid = CurrentRecord.val().votersid || '';
                 var address = CurrentRecord.val().address || '';
                 var email = CurrentRecord.val().email || '';
                 var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
-                AddItemsToTable(name,address,email,mobile_no);
+                const tableData = [votersid,name,email,address,mobile_no]
+                AddItemsToTable(tableData);
 
               }
             )
@@ -125,22 +135,17 @@
 
 //-----------FILLING THE TABLE-------------//
 
-        function AddItemsToTable(name,address,email,mobile_no){
+        function AddItemsToTable(data){
           var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
-          var td1 = document.createElement('td');
-          var td2 = document.createElement('td');
-          var td3 = document.createElement('td');
-          var td4 = document.createElement('td');
-          td1.innerHTML= name;
-          td2.innerHTML= address;
-          td3.innerHTML= email;
-          td4.innerHTML= mobile_no;
-          trow.appendChild(td1); 
-          trow.appendChild(td2); 
-          trow.appendChild(td3); 
-          trow.appendChild(td4);
+
+          for(var i = 0; i < data.length; i++){
+            var td = document.createElement('td');
+            td.innerHTML= data[i];
+            trow.appendChild(td); 
+          }
           tbody.appendChild(trow);
+        
         }
 
        
