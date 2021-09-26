@@ -120,8 +120,8 @@
               function(CurrentRecord){
                 var name = CurrentRecord.val().name || '';
                 var votersid = CurrentRecord.val().votersid || '';
-                var address = CurrentRecord.val().address || '';
-                var email = CurrentRecord.val().email || '';
+                var address = CurrentRecord.val().email || '';
+                var email = CurrentRecord.val().address || '';
                 var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
                 const tableData = [votersid,name,email,address,mobile_no]
                 AddItemsToTable(tableData);
