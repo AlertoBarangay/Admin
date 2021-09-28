@@ -123,7 +123,6 @@
 <!--navigation--> 
 <nav class="navbar bg-dark navbar-dark navbar-expand-md">
   <div class="container">
-    <pre id="account-details"></pre>
     <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -147,11 +146,24 @@
             </i>Resident Information</a>
         </li>
 
-        <h6 id="signOutButton" class="text-white">Sign Out</h6>
+        <!-- Example single danger button -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profileActionButton" >
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#" id="showProfile">Profile</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#" id="signOutButton">Sign Out</a>
+          </div>
+        </div>
+
       </ul>
     </div>
   </div>    
 </nav>
+
+   
+
     <main class="row m-0 p-5" id="main-container">
       
     </main>
@@ -192,6 +204,7 @@
         
        
         <script>
+         
           let AllReportRecords = {};
           // Your web app's Firebase configuration
           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -337,7 +350,9 @@
     const shortCode = "21585411";
     const shortCodeLast4Digit = "5411";
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
-
+    
+    
+    
     function sendMessage(usersAccessToken, usersPhoneNumber,reportId){
       console.log('test');
       Swal.fire({
