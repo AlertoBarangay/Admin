@@ -123,7 +123,7 @@
 <!--navigation--> 
 <nav class="navbar bg-dark navbar-dark navbar-expand-md">
   <div class="container">
-    
+    <pre id="account-details"></pre>
     <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -146,6 +146,8 @@
             <a class="nav-link" href="Resident.html">
             </i>Resident Information</a>
         </li>
+
+        <h6 id="signOutButton" class="text-white">Sign Out</h6>
       </ul>
     </div>
   </div>    
@@ -434,12 +436,16 @@
       });
 
     });
-
     
-
+    
+    
+      
     </script>
 
-
+    
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    <script src="/verifySignInStatus.js"></script>
+    <script src="/signInNavbarStatus.js"></script>
   </body>
 
 </html>
