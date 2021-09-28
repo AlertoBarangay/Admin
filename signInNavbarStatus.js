@@ -12,8 +12,9 @@ initApp = function() {
 
       adminRef.child(user.uid).get().then((snapshot)=>{
         if(snapshot.exists()){
+          
           adminInfo = snapshot.val();
-
+          console.log(adminInfo);
           const fullName = adminInfo.firstName + " " + adminInfo.middleName.charAt(0) + ". "+adminInfo.lastName;
           $("#profileActionButton").html(fullName);
           adminInfo.fullName = fullName;
