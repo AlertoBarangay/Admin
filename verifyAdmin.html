@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <link rel="icon" href="/images/logo.png">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="ol\ol.css" type="text/css">
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-database.js"></script>
+
+
+<script src="/firebaseInitialization.js"></script>
+
+<style>
+  .logo {
+    width: 1.5rem;
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  .mobileNum::-webkit-outer-spin-button,
+  .mobileNum::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  .mobileNum[type=number] {
+    -moz-appearance: textfield;
+ }
+  #verifiedForm {
+    display: none;
+  }
+  
+</style>
+</head>
+<body>
+  
+  <section class="mx-auto mt-5 shadow-sm rounded-sm border p-5" style="max-width: 30rem;border-color: rgba(0,0,0,0.6);">
+
+    <nav class="mb-4">
+      
+      <h3 class="ml-2 h2 text-center">Verify your Identity</h3>
+      <div class="d-flex justify-content-center">
+        <img src="/images/logo.png" class="rounded-circle logo mr-2">
+        <img src="/images/bg.png" class="rounded-circle logo">
+      </div>
+    </nav>
+
+
+    <form id="unverifiedForm">
+      <div class="form-group">
+        <label for="unverifiedPassword">Barangay Password</label>
+        <input type="password" required class="form-control" id="unverifiedPassword" placeholder="Password from the Barangay officials">
+        <small class="text-danger font-weight-bold" id="unverifiedPassError"></small>
+      </div>
+      
+      <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary w-100">Verify</button>
+      </div>
+    </form>
+
+    <form id="verifiedForm">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" required class="form-control" id="firstName" placeholder="Enter your first name">
+      </div>
+     
+      <div class="form-group">
+        <label for="middleName">Middle Name</label>
+        <input type="text" class="form-control" id="middleName" placeholder="Enter your middle name">
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" required class="form-control" id="lastName" placeholder="Enter your last name">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" required class="form-control" id="email" placeholder="Enter your email address">
+      </div>
+
+      <div class="form-group">
+        <label for="mobileNumber">Mobile Number</label>
+        <input type="number" required class="form-control mobileNum" id="mobileNumber" placeholder="Enter your mobile number">
+      </div>
+
+      <div class="form-group">
+        <label for="address"></label>Address</label>
+        <textarea id="address" required  class="form-control" cols="20" rows="3" placeholder="Enter your full address"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="isNightShift">Shift</label>
+        <select  id="isNightShift" class="form-control">
+          <option value="0">Day Shift</option>
+          <option value="1">Night Shift</option>
+        </select>
+      </div>
+      
+      <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary w-100">Create Account</button>
+      </div>
+    </form>
+  </section>
+
+</body>
+
+<script src="/verifySignInStatus.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
+<script>
+  const secretEncryptionPhrase = "secret";
+  let verificationChances = 3;
+  $("#verifiedForm").hide();
+
+  $("#unverifiedForm").submit(( event ) => {
+    event.preventDefault();
+    let unverifiedPassword = $("#unverifiedPassword").val();
+    firebase.database().ref('Barangay').child("Password").get()
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const isPasswordValid = compareEncryptedStrings(snapshot.val(),unverifiedPassword);
+
+        if(isPasswordValid){
+          sessionStorage.setItem("unverifiedPassword", unverifiedPassword);
+          $("#unverifiedForm").hide();
+          const displayName = user.displayName;
+          
+          var words = displayName.split(" ");
+
+          const lastName = words[words.length - 1];
+          let firstName = "";
+          for(var i = 0; i < words.length - 1; i++){
+            firstName += " " + words[i];
+          }
+          $("")
+          $("#email").val(user.email);
+          $("#mobileNumber").val(user.phoneNumber);
+          $("#firstName").val(firstName);
+          $("#lastName").val(lastName);
+
+
+          $("#verifiedForm").show(()=>{ 
+            $("#unverifiedForm").remove();
+          });
+        }else{
+          verificationChances--;
+          if(verificationChances <= 0){
+            firebase.auth().signOut();
+          }
+          $("#unverifiedPassError").html("Wrong password. You only have " + verificationChances + " chances.");
+          
+        }
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+  });
+
+
+  $("#verifiedForm").submit(( event ) => {
+    event.preventDefault();
+    const barangayRef = firebase.database().ref('Barangay');
+    barangayRef.child("verifiedEmailUID").child(user.uid)
+    .set(true,(error)=>{
+      if(!error){
+
+        const adminInfo = {
+          address : $("#address").val(),
+          firstName : $("#firstName").val(),
+          middleName : $("#middleName").val(),
+          lastName : $("#lastName").val(),
+          mobileNumber : $("#mobileNumber").val(),
+          isNightShift : ($("#isNightShift").val() === "1") ? true : false
+        }
+        console.log(adminInfo);
+
+        barangayRef.child("Admins").child(user.uid).set(adminInfo,(error)=>{
+          if(!error){
+            location.href = "/";
+          }else{
+            console.log(error)
+          }
+        });
+      }else{  
+        console.error(error);
+      }
+    });
+  });
+
+  function compareEncryptedStrings(encryptedString,decryptedString){
+    let decrypted = CryptoJS.AES.decrypt(encryptedString, secretEncryptionPhrase).toString(CryptoJS.enc.Utf8);
+    return decrypted === decryptedString;
+  }
+  
+  
+
+
+</script>
+
+</html>
