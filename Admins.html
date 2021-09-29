@@ -20,9 +20,10 @@
 
 <!---flaticon-->
 <link rel="stylesheet" type="text/css" href="C:\Users\Jan Cuvinar\Desktop\CVSu - e Guidance\font\flaticon.css">
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!--------CSS------->
-<link rel="stylesheet" href="CvsuGuidance.css">
+
     <style>
       html,body
       {
@@ -89,16 +90,21 @@
         </div>
       </div>    
     </nav>
-    
     <div class="container mt-3">
-          
+     <div style="width: max-content;">
+        <div class="btn btn-info mx-0 my-2" id="changeBrgyPass">
+          Change Barangay Password
+        </div>
+     </div>
       <table class="table bg-white shadow-sm">
         <thead class="bg-dark text-white">
-          <th >Voter's ID</th>
-          <th>Full Name</th>
-          <th>Address</th>
+          <th >First Name</th>
+          <th>Middle Name</th>
+          <th>Last Name</th>
+          <th>Shift</th>
           <th>Email</th>
-          <th>Phone Number</th>
+          <th>Mobile Number</th>
+          <th>Address</th>
         </thead>
 
         <tbody id="tbody1">
@@ -107,7 +113,7 @@
     </div>
             <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js" integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o=" crossorigin="anonymous"></script>
         <!-- TODO: Add SDKs for Firebase products that you want to use
             https://firebase.google.com/docs/web/setup#available-libraries -->
         <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
@@ -133,16 +139,19 @@
           //-------------GET ALL DATA-------------//
 
         function SelectAllData(){
-          firebase.database().ref('Users').orderByChild('votersid').on('value',
+          firebase.database().ref('Barangay/Admins').on('value',
           function(AllRecords){
             AllRecords.forEach(
               function(CurrentRecord){
-                var name = CurrentRecord.val().name || '';
-                var votersid = CurrentRecord.val().votersid || '';
-                var address = CurrentRecord.val().email || '';
-                var email = CurrentRecord.val().address || '';
-                var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
-                const tableData = [votersid,name,email,address,mobile_no]
+                var firstName = CurrentRecord.val().firstName || '';
+                var middleName = CurrentRecord.val().middleName || '';
+                var lastName = CurrentRecord.val().lastName || '';
+                var isNightShift = CurrentRecord.val().isNightShift ? "Night" : "Day";
+                var email = CurrentRecord.val().email || '';
+                var mobileNumber = CurrentRecord.val().mobileNumber || '';
+                var address = CurrentRecord.val().address || '';
+                
+                const tableData = [firstName,middleName,lastName,isNightShift,email,mobileNumber,address]
                 AddItemsToTable(tableData);
 
               }
@@ -167,7 +176,57 @@
         
         }
 
-       
+        function changeBrgyPass(usersAccessToken, usersPhoneNumber,reportId){
+
+          
+
+          Swal.fire({
+            title: 'Change Barangay Password',
+            html:
+            '<form id="brgy-pass-form">' +
+            '<input id="brgy-pass1" type="password" required minlength="8" class="form-control my-3" placeholder="Enter new password">' +
+            '<input id="brgy-pass2" type="password" required minlength="8" class="form-control my-3" placeholder="Confirm password">' +
+            '<input class="btn btn-primary my-3" type="submit" value="Change Password">' +
+            '</form>',
+            showCancelButton: false,
+            showConfirmButton: false,
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+          });
+
+          var password = document.getElementById("brgy-pass1");
+          var confirm_password = document.getElementById("brgy-pass2");
+
+          function validatePassword(){
+            if(password.value != confirm_password.value) {
+              confirm_password.setCustomValidity("Passwords Don't Match");
+            } else {
+              confirm_password.setCustomValidity('');
+            }
+          }
+
+          password.onchange = validatePassword;
+          confirm_password.onkeyup = validatePassword;
+          
+          $("#brgy-pass-form").submit(( event ) => {
+            event.preventDefault();
+            let unverifiedPassword = $("#brgy-pass1").val();
+            let verifiedPassword = CryptoJS.AES.encrypt(unverifiedPassword, "secret");
+            firebase.database().ref('Barangay').child("Password").set(verifiedPassword.toString(),(error)=>{
+              if(!error){
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Password Changed!',
+                })
+              }
+            })
+          });  
+
+        }
+
+        $("#changeBrgyPass").click(function(){
+          changeBrgyPass();
+        })
 
     </script>
 

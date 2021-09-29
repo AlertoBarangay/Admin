@@ -121,7 +121,7 @@
 
   <body>
 <!--navigation--> 
-<nav class="navbar bg-dark navbar-dark navbar-expand-md">
+<nav class="navbar bg-dark navbar-dark navbar-expand-md" style="display: none;">
   <div class="container">
     <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
 
@@ -145,11 +145,16 @@
 
         <li class="nav-item active">
           <a class="nav-link" href="Resident.html">
-          </i>Resident Information</a>
+          </i>Residents</a>
+        </li>
+
+        <li class="nav-item active">
+          <a class="nav-link" href="Admins.html">
+          </i>Admins</a>
         </li>
 
         <!-- Example single danger button -->
-        <div class="btn-group">
+        <div class="btn-group ml-2">
           <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profileActionButton">
           </button>
           <div class="dropdown-menu">
@@ -473,7 +478,6 @@
     
       
     </script>
-
     
     <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
     <script src="/verifySignInStatus.js"></script>
