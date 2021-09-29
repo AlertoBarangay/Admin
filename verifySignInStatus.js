@@ -12,7 +12,7 @@ initApp = function() {
         if (snapshot.exists()) {
           if(location.pathname != homeUrl)location.href = homeUrl;
         }else{
-          alert(verifyAdminUrl);
+          alert(location.pathname);
           if(location.pathname != verifyAdminUrl)location.href = verifyAdminUrl;
         }
       }).catch((error) => {
