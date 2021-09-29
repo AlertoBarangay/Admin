@@ -116,54 +116,53 @@
       }
 
 
-      </style>
+        </style>
   </head>
 
   <body>
 <!--navigation--> 
-<nav class="navbar bg-dark navbar-dark navbar-expand-md">
-  <div class="container">
-    <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
+  <nav class="navbar bg-dark navbar-dark navbar-expand-md">
+    <div class="container">
+      <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse"
-      data-target="#nabvarResponsive">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+      <button class="navbar-toggler" type="button" data-toggle="collapse"
+        data-target="#nabvarResponsive">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="nabvarResponsive">
-      <ul class="navbar-nav ml-auto">
+      <div class="collapse navbar-collapse" id="nabvarResponsive">
+        <ul class="navbar-nav ml-auto">
 
-        <li class="nav-item active">
-            <a class="nav-link" href="index.html">
-            </i>Reports</a>
-        </li>
+          <li class="nav-item active">
+              <a class="nav-link" href="index.html">
+              </i>Reports</a>
+          </li>
 
-        <li class="nav-item active">
-          <a class="nav-link" href="Reports-History.html">
-          </i>Reports History</a>
-        </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="Reports-History.html">
+            </i>Reports History</a>
+          </li>
 
-        <li class="nav-item active">
-          <a class="nav-link" href="Resident.html">
-          </i>Resident Information</a>
-        </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="Resident.html">
+            </i>Resident Information</a>
+          </li>
 
-        <!-- Example single danger button -->
-        <div class="btn-group">
-          <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profileActionButton">
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="#" id="showProfile">Profile</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#" id="signOutButton">Sign Out</a>
+          <!-- Example single danger button -->
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profileActionButton">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="#" id="showProfile">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#" id="signOutButton">Sign Out</a>
+            </div>
           </div>
-        </div>
 
-      </ul>
-    </div>
-  </div>    
-</nav>
-
+        </ul>
+      </div>
+    </div>    
+  </nav>
     <main class="row m-0 p-5" id="main-container">
       
     </main>
@@ -224,7 +223,7 @@
           //-------------GET ALL DATA-------------//
         let test = false;
         function SelectAllData(){
-          firebase.database().ref('Reports').orderByChild("isActionWaiting").equalTo(true).on('value',
+          firebase.database().ref('Reports').orderByChild("isActionWaiting").equalTo(false).on('value',
           function(AllRecords){
             AllReportRecords = AllRecords.val();
             $(".reportRow").remove();
@@ -263,6 +262,8 @@
           let statusColor = "bg-success";
           if(data.isActionWaiting)statusColor = "bg-danger";
 
+
+
           const dataCard = `
           <div class="px-2 py-4 col-12 col-md-6 col-lg-4 col-xl-3">
           <div class="shadow-sm rounded-lg border border-light p-1 bg-white w-100">
@@ -274,34 +275,42 @@
                   ` + data.address + `  
                   </p>
                 </div>
+                
               </div>
+              
+              
               <div class="p-2">
-
+                
                 <div class="d-flex justify-content-between my-2 h-6">
                   <h6 class=" `+statusColor+` text-white p-2 rounded-pill" style="font-size: 10px">
                   ` + data.status + `  
                   </h6>
                   <h6 class="my-auto text-secondary w-max" style="font-size: 12px">`+data.dateTime+`</h6>
                 </div>
-
-              <div class="my-2">
-                <h5> ` + data.typeOfReport + `	</h5>
-                <p  class="bg-dark text-white w-max p-1 rounded-sm mx-auto" style="font-size: 8px">
-                ` + data.reportBy + ' | ' + data.phone.subscriberNumber + `  
-                </p>
-              </div>
-                <h6 class="text-secondary">
-                `+ data.description +`  
-                </h6>
+                <section id="history`+id+`"></section>
+               
                 
+               
+
+                <div class="my-2">
+                  <h5> ` + data.typeOfReport + `	</h5>
+                  <p  class="bg-dark text-white w-max p-1 rounded-sm mx-auto" style="font-size: 8px">
+                  ` + data.reportBy + ' | ' + data.phone.subscriberNumber + `  
+                  </p>
+                  
+                </div>
+                  <h6 class="text-secondary">
+                  `+ data.description +`  
+                  </h6>
+                <div class="d-flex">
+                  <p class="btn btn-primary w-100 mr-2" style="font-size: 12px" id="message`+id+`">Message</p>
+                  <p class="btn bg-white border text-secondary w-100" style="border-color: #6C757D;font-size: 12px" id="maxMap`+id+`">Maximize Map</p>
+                </div>
               </div>
-              <div class="d-flex">
-                <p class="btn btn-primary w-100 mr-2" style="font-size: 12px" id="message`+id+`">Message</p>
-                <p class="btn bg-white border text-secondary w-100" style="border-color: #6C757D;font-size: 12px" id="maxMap`+id+`">Maximize Map</p>
               </div>
-            </div>
-            </div>
-            `;
+              `;
+
+          
 
           if(!data.isActionWaiting){
             $("#main-container").append(dataCard);
@@ -315,6 +324,69 @@
           $("#maxMap" + id).click(function(){
             showMaxMap(data,id);
           });
+
+          var history = firebase.database().ref('ReportsHistory').child(id);
+          history.on('value', (snapshot) => {
+            $("#history" + id).html(null);
+            const reportData = snapshot.val();
+            for(var key in reportData){
+              const currentHistory = reportData[key];
+                
+                firebase.database().ref('Barangay/Admins').child(currentHistory.adminId).get()
+                .then( (snapshot)=>{
+                  let admin = snapshot.val();
+                  admin.fullName = admin.firstName +" "+ admin.middleName.charAt(0)  + ". " + admin.lastName;
+                  const historyCard = `<div class="alert alert-success w-100 p-2 mb-1" role="alert">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="badge badge-info btn btn-info showAdmin `+currentHistory.adminId+`" >
+                        <img src="/images/message.svg" class="my-auto" alt="test" style="width:0.8rem">
+                        <small>`+admin.fullName+`</small>
+                      </h6> 
+                      <h6 class="badge badge-light d-flex">
+                        <small class="m-auto">`+currentHistory.date+`</small>
+                      </h6>
+                    </div>  
+                    <h6 class="h6 text-dark font-weight-normal text-left" style="font-size: 0.8rem">`+currentHistory.message+`<h6>
+                  </div>`
+                  $("#history" + id).append(historyCard);
+
+                  $("." + currentHistory.adminId).click(()=>{
+                    let adminInfo = admin;
+                    let profileBody = "<div>";
+                    profileBody += '<h3 class="mb-2">'+adminInfo.fullName+'</h3>';
+                    let toShowKey = ['isNightShift','email','mobileNumber','address'];
+                    for(var i = 0; i < toShowKey.length; i++ ){
+                      var key = toShowKey[i];
+                      var displayKey = "";
+                      let splittedKey = key.split(/(?=[A-Z])/);
+                      for(var j = 0; j < splittedKey.length;j++){
+                        displayKey += splittedKey[j].charAt(0).toUpperCase() + splittedKey[j].slice(1) + " ";
+                      }
+                      if(key === "isNightShift"){
+                        displayKey = "Shift";
+                        if(key)adminInfo[key] = "Night";
+                        adminInfo[key] = "Day";
+                      }
+                      // console.log(i);
+
+                      profileBody += '<div><div class="d-flex text-secondary my-2"><h5>'+displayKey+'</h5><span class="mx-1">:</span><h5 class="text-dark">'+adminInfo[key]+'</h5></div></div>'
+                    }
+                    profileBody += "</div>"
+                    Swal.fire({
+                      html: profileBody,
+                      showCloseButton: true,
+                      showCancelButton: false,
+                      focusConfirm: false,
+                    })
+                  });
+
+                });
+                
+                
+              
+            }
+          });
+
         }
         
         function AddItemsToTable(tableData,phone,id,isActionWaiting){
@@ -351,6 +423,7 @@
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
     function sendMessage(usersAccessToken, usersPhoneNumber,reportId){
+      console.log('test');
       Swal.fire({
         title: 'Send Message to ' + usersPhoneNumber,
         input: 'textarea',
@@ -387,35 +460,21 @@
     }
 
     function setIsActioned(reportId = null,isAction = true,textMessage = ""){
-      console.log(reportId);
+      // console.log(reportId);
       if(!reportId)return;
-      firebase.database().ref('Reports').child(reportId).child('isActionWaiting').set(isAction);
-      const statusRef = firebase.database().ref('Reports').child(reportId).child('status');
 
       const historyRef = firebase.database().ref('ReportsHistory').child(reportId);
       const newHistoryKey = historyRef.push().key;
       console.log(newHistoryKey);
       if(!isAction){
         // console.log(adminInfo);
-        var today  = new Date();
-        var formattedDate = "";
-        formattedDate += today.getDate() + "/";
-        formattedDate += (today.getMonth() + 1) + "/";
-        formattedDate += today.getFullYear() + " ";
-        formattedDate += today.getHours() + ":";
-        formattedDate += today.getMinutes() + ":";
-        formattedDate += today.getSeconds();
-
-        
         const newHistory = {
           adminId : adminInfo.uid,
-          date :formattedDate,
+          date : Date.now(),
           message : textMessage
         }
         historyRef.child(newHistoryKey).set(newHistory);
-        statusRef.set('Action deployed');
       }else{
-        statusRef.set('Waiting for action.');
       }
     }
 

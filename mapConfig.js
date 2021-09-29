@@ -1,7 +1,6 @@
 function addMapLayer(data,id,allData){
 	const longitude = data.fullAddress.longitude || 0;
 	const latitude = data.fullAddress.latitude || 0;
-	console.log(longitude,latitude);
 	var map = new ol.Map({
 		target: 'map' + id,
 		layers: [

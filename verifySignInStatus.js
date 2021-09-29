@@ -6,6 +6,7 @@ initApp = function() {
   firebase.auth().onAuthStateChanged(function(userInfo) {
     if(userInfo){
       user = userInfo;
+      console.log(userInfo);
       firebase.database().ref('Barangay/verifiedEmailUID').child(user.uid).get()
       .then((snapshot) => {
         if (snapshot.exists()) {
@@ -16,7 +17,7 @@ initApp = function() {
       }).catch((error) => {
         console.error(error);
       });
-      // console.log(user);
+      
     }else{
       if(location.pathname !== logInUrl )location.href = logInUrl;
     }
@@ -25,4 +26,6 @@ initApp = function() {
 
 window.addEventListener('load', function() {
   initApp()
+ 
+
 });
