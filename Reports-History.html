@@ -121,35 +121,40 @@
 
   <body>
 <!--navigation--> 
-  <nav class="navbar bg-dark navbar-dark navbar-expand-md">
+  <nav class="navbar bg-dark navbar-dark navbar-expand-md" style="display: none;">
     <div class="container">
       <a href="" class="navbar-brand"><img style="width: 3rem;" src="/images/logo.png" alt="logo" title="logo"></a>
-
+  
       <button class="navbar-toggler" type="button" data-toggle="collapse"
         data-target="#nabvarResponsive">
         <span class="navbar-toggler-icon"></span>
       </button>
-
+  
       <div class="collapse navbar-collapse" id="nabvarResponsive">
         <ul class="navbar-nav ml-auto">
-
+  
           <li class="nav-item active">
               <a class="nav-link" href="index.html">
               </i>Reports</a>
           </li>
-
+  
           <li class="nav-item active">
             <a class="nav-link" href="Reports-History.html">
             </i>Reports History</a>
           </li>
-
+  
           <li class="nav-item active">
             <a class="nav-link" href="Resident.html">
-            </i>Resident Information</a>
+            </i>Residents</a>
           </li>
-
+  
+          <li class="nav-item active">
+            <a class="nav-link" href="Admins.html">
+            </i>Admins</a>
+          </li>
+  
           <!-- Example single danger button -->
-          <div class="btn-group">
+          <div class="btn-group ml-2">
             <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="profileActionButton">
             </button>
             <div class="dropdown-menu">
@@ -158,7 +163,7 @@
               <a class="dropdown-item" href="#" id="signOutButton">Sign Out</a>
             </div>
           </div>
-
+  
         </ul>
       </div>
     </div>    
@@ -436,9 +441,10 @@
         showLoaderOnConfirm: true,
         preConfirm: (message) => {
           let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
-          // console.log(usersAccessToken);
+          console.log(sendLink);
           axios.get(sendLink)
           .then(function (response) {
+            console.log(response);
             setIsActioned(reportId,false,message);
           }).catch(function(error){
             console.error(error);
@@ -460,21 +466,35 @@
     }
 
     function setIsActioned(reportId = null,isAction = true,textMessage = ""){
-      // console.log(reportId);
+      console.log(reportId);
       if(!reportId)return;
+      firebase.database().ref('Reports').child(reportId).child('isActionWaiting').set(isAction);
+      const statusRef = firebase.database().ref('Reports').child(reportId).child('status');
 
       const historyRef = firebase.database().ref('ReportsHistory').child(reportId);
       const newHistoryKey = historyRef.push().key;
       console.log(newHistoryKey);
       if(!isAction){
         // console.log(adminInfo);
+        var today  = new Date();
+        var formattedDate = "";
+        formattedDate += today.getDate() + "/";
+        formattedDate += (today.getMonth() + 1) + "/";
+        formattedDate += today.getFullYear() + " ";
+        formattedDate += today.getHours() + ":";
+        formattedDate += today.getMinutes() + ":";
+        formattedDate += today.getSeconds();
+
+        
         const newHistory = {
           adminId : adminInfo.uid,
-          date : Date.now(),
+          date :formattedDate,
           message : textMessage
         }
         historyRef.child(newHistoryKey).set(newHistory);
+        statusRef.set('Action deployed');
       }else{
+        statusRef.set('Waiting for action.');
       }
     }
 

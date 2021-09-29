@@ -3,6 +3,7 @@ initApp = function() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       // User is signed in.
+      $("nav").show();
       $("#signOutButton").click(function(){
         firebase.auth().signOut();
       });
