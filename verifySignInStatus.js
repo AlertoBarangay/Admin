@@ -10,17 +10,17 @@ initApp = function() {
       firebase.database().ref('Barangay/verifiedEmailUID').child(user.uid).get()
       .then((snapshot) => {
         if (snapshot.exists()) {
-          if(location.pathname !== homeUrl)location.href = homeUrl;
+          if(location.pathname != homeUrl)location.href = homeUrl;
         }else{
           alert(verifyAdminUrl);
-          if(location.pathname !== verifyAdminUrl)location.href = verifyAdminUrl;
+          if(location.pathname != verifyAdminUrl)location.href = verifyAdminUrl;
         }
       }).catch((error) => {
         console.error(error);
       });
       
     }else{
-      if(location.pathname !== logInUrl )location.href = logInUrl;
+      if(location.pathname != logInUrl )location.href = logInUrl;
     }
   });  
 }
