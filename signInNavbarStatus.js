@@ -73,7 +73,4 @@ profileBody += "</div>"
     focusConfirm: false,
   })
 }
-
-window.addEventListener('load', function() {
-  initApp()
-});
+initApp()
