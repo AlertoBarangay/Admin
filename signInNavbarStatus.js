@@ -14,7 +14,7 @@ initApp = function() {
         if(snapshot.exists()){
           
           adminInfo = snapshot.val();
-          console.log(adminInfo);
+          adminInfo.uid = user.uid;
           const fullName = adminInfo.firstName + " " + adminInfo.middleName.charAt(0) + ". "+adminInfo.lastName;
           $("#profileActionButton").html(fullName);
           adminInfo.fullName = fullName;
@@ -44,24 +44,24 @@ function showProfile(){
 
   profileBody += '<h3 class="mb-2">'+adminInfo.fullName+'</h3>';
   
-  let profileExemptedKey = ['firstName','lastName','middleName','fullName'];
-  for(var key in adminInfo){
+  let toShowKey = ['isNightShift','email','mobileNumber','address'];
+  for(var i = 0; i < toShowKey.length; i++ ){
+    var key = toShowKey[i];
     var displayKey = "";
-    if(profileExemptedKey.includes(key))continue;
     let splittedKey = key.split(/(?=[A-Z])/);
-   
-    for(var i = 0; i < splittedKey.length;i++){
-      displayKey += splittedKey[i].charAt(0).toUpperCase() + splittedKey[i].slice(1) + " ";
+    for(var j = 0; j < splittedKey.length;j++){
+      displayKey += splittedKey[j].charAt(0).toUpperCase() + splittedKey[j].slice(1) + " ";
     }
     if(key === "isNightShift"){
       displayKey = "Shift";
       if(key)adminInfo[key] = "Night";
       adminInfo[key] = "Day";
     }
-    
+    console.log(i);
 
     profileBody += '<div><div class="d-flex text-secondary my-2"><h5>'+displayKey+'</h5><span class="mx-1">:</span><h5 class="text-dark">'+adminInfo[key]+'</h5></div></div>'
   }
+    
   
 profileBody += "</div>"
 
@@ -71,7 +71,6 @@ profileBody += "</div>"
     showCancelButton: false,
     focusConfirm: false,
   })
-  console.log(profileBody);
 }
 
 window.addEventListener('load', function() {
