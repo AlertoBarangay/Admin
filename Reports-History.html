@@ -466,7 +466,7 @@
         // console.log(usersAccessToken);
         axios.get(sendLink)
         .then(function (response) {
-          setIsActioned(reportId,true,reportInfo);
+          setIsActioned(reportId,false,reportInfo);
         }).catch(function(error){
           console.error(error);
         })
@@ -487,7 +487,6 @@
       const historyRef = firebase.database().ref('ReportsHistory').child(reportId);
       const newHistoryKey = historyRef.push().key;
       // console.log(newHistoryKey);
-      if(!isAction){
         // console.log(adminInfo);
         var today  = new Date();
         var formattedDate = "";
@@ -504,7 +503,9 @@
           date :formattedDate,
           message : reportInfo
         }
-        statusRef.set('Action deployed');
+        let actionDescription = 'Action deployed';
+        if(isAction)actionDescription = "Action Waiting"
+        statusRef.set(actionDescription);
         historyRef.child(newHistoryKey).set(newHistory, (error) => {
           if(!error){
             swal.close();
@@ -517,9 +518,7 @@
             console.error(error);
           }
         });
-      }else{
-        statusRef.set('Waiting for action.');
-      }
+      
       }
     function showMaxMap(data,id){
       const maxMapId = id + 'max';
