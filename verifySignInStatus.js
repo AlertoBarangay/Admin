@@ -1,8 +1,8 @@
 let user = null;
 initApp = function() {
-  const logInUrl = "/login.html";
+  const logInUrl = "/login";
   const homeUrl = "/";
-  const verifyAdminUrl = "/verifyadmin.html";
+  const verifyAdminUrl = "/verifyadmin";
   firebase.auth().onAuthStateChanged(function(userInfo) {
     if(userInfo){
       user = userInfo;
