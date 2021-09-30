@@ -427,53 +427,66 @@
     const shortCodeLast4Digit = "5411";
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
+    
     function sendMessage(usersAccessToken, usersPhoneNumber,reportId){
-      console.log('test');
       Swal.fire({
-        title: 'Send Message to ' + usersPhoneNumber,
-        input: 'textarea',
-        inputAttributes: {
-          autocapitalize: 'off',
-          placeholder : 'Enter your message'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Send Message',
-        showLoaderOnConfirm: true,
-        preConfirm: (message) => {
-          let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
-          console.log(sendLink);
-          axios.get(sendLink)
-          .then(function (response) {
-            console.log(response);
-            setIsActioned(reportId,false,message);
-          }).catch(function(error){
-            console.error(error);
-          })
-        },
+        title: `<div id="sendMessageTitle">Send Message to `+usersPhoneNumber+`</div>`,
+        html : `
+         <form id="sendMessageForm">
+            <div class="form-group">
+              <label for="textMessage" class="text-left w-100">Text Message</label>
+              <textarea class="form-control" placeholder="Enter the message to the user." id="textMessage"></textarea>
+            </div> 
+            <div class="form-group">
+              <label for="reportInfo" class="text-left w-100">Report Information</label>
+              <textarea class="form-control" placeholder="Enter description and informations." id="reportInfo"></textarea>
+              <small id="emailHelp" class="form-text text-muted text-left w-100">This will be seen as additional information on the report history.</small>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="submitMessage">Send Message</button> 
+         </form>
+        `,
+        showCancelButton: false,
+        showConfirmButton: false,
+        showLoaderOnConfirm: false,
         allowOutsideClick: () => !Swal.isLoading()
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Message Sent',
-          })
-        }
       })
+
+      $("#sendMessageForm").submit(( event ) => {
+        event.preventDefault();
+        $("#sendMessageForm").hide();
+        $("#sendMessageTitle").html("Sending Message...");
+        swal.disableButtons();
+        swal.showLoading();
+        let message = $("#textMessage").val();
+        let reportInfo = $("#reportInfo").val();
+        $(':input','#myform')
+        .not(':button, :submit, :reset, :hidden')
+        .val('')
+        let sendLink = "https://alerto-backend.herokuapp.com/send-message?accessToken=" + usersAccessToken + "&subscriberNumber=" + usersPhoneNumber + "&message=" + message;
+        // console.log(usersAccessToken);
+        axios.get(sendLink)
+        .then(function (response) {
+          setIsActioned(reportId,true,reportInfo);
+        }).catch(function(error){
+          console.error(error);
+        })
+      });
+
     }
 
     function closeMessageDialog(){
       document.getElementById("message-dialog").classList.add("hidden");
     }
 
-    function setIsActioned(reportId = null,isAction = true,textMessage = ""){
-      console.log(reportId);
+    function setIsActioned(reportId = null,isAction = true,reportInfo = ""){
+      // console.log(reportInfo);
       if(!reportId)return;
       firebase.database().ref('Reports').child(reportId).child('isActionWaiting').set(isAction);
       const statusRef = firebase.database().ref('Reports').child(reportId).child('status');
 
       const historyRef = firebase.database().ref('ReportsHistory').child(reportId);
       const newHistoryKey = historyRef.push().key;
-      console.log(newHistoryKey);
+      // console.log(newHistoryKey);
       if(!isAction){
         // console.log(adminInfo);
         var today  = new Date();
@@ -489,15 +502,25 @@
         const newHistory = {
           adminId : adminInfo.uid,
           date :formattedDate,
-          message : textMessage
+          message : reportInfo
         }
-        historyRef.child(newHistoryKey).set(newHistory);
         statusRef.set('Action deployed');
+        historyRef.child(newHistoryKey).set(newHistory, (error) => {
+          if(!error){
+            swal.close();
+            Swal.fire({
+              icon: 'success',
+              title: 'Message Sent!',
+              footer: 'The history report was also recorded.'
+            })
+          }else{
+            console.error(error);
+          }
+        });
       }else{
         statusRef.set('Waiting for action.');
       }
-    }
-
+      }
     function showMaxMap(data,id){
       const maxMapId = id + 'max';
       Swal.fire({
