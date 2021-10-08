@@ -168,27 +168,10 @@
       </div>
     </div>    
   </nav>
-    <main class="row m-0 p-5" id="main-container">
+    <main class="m-0 p-5" id="main-container">
       
     </main>
-    <div class="container mt-3 d-none">
-      
-      <table class="table">
-        <thead>
-          <th>Message</th>
-          <th>Phone Number</th>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Incident</th>
-          <th>Status</th>
-          <th>Adress</th>
-
-        </thead>
-
-        <tbody id="tbody1">
-        </tbody>
-      </table>
-    </div>
+    
 
     <!-- pop up dialog for message -->
     
@@ -209,6 +192,7 @@
        
         <script>
           let AllReportRecords = {};
+          let historyDays = {};
           // Your web app's Firebase configuration
           // For Firebase JS SDK v7.20.0 and later, measurementId is optional
           const firebaseConfig = {
@@ -226,19 +210,54 @@
           firebase.analytics();
 
           //-------------GET ALL DATA-------------//
-        let test = false;
+        
+          function getHistory(){
+            firebase.database().ref('ReportsHistory').get()
+            .then( function(AllRecords){
+              AllRecords.forEach(function(childSnapshot){
+                let historyCount = 1;
+                const id = childSnapshot.key;
+                for(key in childSnapshot.val()){
+                  const CurrentRecord = childSnapshot.val()[key];
+                  const dayMonthYear = CurrentRecord.date.split(" ")[0];
+                  if(!historyDays[dayMonthYear])historyDays[dayMonthYear] = {};
+                  const duplicationHistoryId = "history" + historyCount + id;
+                  historyDays[dayMonthYear][duplicationHistoryId] = {
+                    adminId : CurrentRecord.adminId,
+                    historyCard : null
+                  }
+                  historyCount++;  
+                }
+              })
+              let orderedKeyHistory = Object.keys(historyDays).sort(function(a, b){
+                const splittedA = a.split("/");
+                const splittedB = b.split("/");
+
+                let sorted = (splittedB[0] + splittedB[1] + splittedB[2]) -  (splittedA[0] + splittedA[1] + splittedA[2]); 
+                return  sorted;
+              });
+              
+              for(var i = 0; i < orderedKeyHistory.length; i++){
+                const currentHistory = historyDays[orderedKeyHistory[i]];
+                var sectionHistory = $(`<section class=' p-1 bg-white w-100  my-3 row' id='section`+ orderedKeyHistory[i].split("/").join("") +`'>
+                  <h6 class="text-left my-3 col-12">`+orderedKeyHistory[i]+`<h6>
+                </section>`);
+                $("#main-container").append(sectionHistory);
+              }
+              SelectAllData();
+            });
+          }  
+  
+
         function SelectAllData(){
           firebase.database().ref('Reports').orderByChild("isActionWaiting").equalTo(false).on('value',
           function(AllRecords){
             AllReportRecords = AllRecords.val();
             $(".reportRow").remove();
-            $("#main-container").html('');
 
-            let hasWaiting = false;
             AllRecords.forEach(
               function(CurrentRecord){
                 const record = CurrentRecord.val();
-                if(!hasWaiting)hasWaiting = record.isActionWaiting;
                 var id = CurrentRecord.key;
                 var comment = record.description;
                 var date = record.dateTime;
@@ -248,32 +267,93 @@
                 var address = "";
                 if(record.fullAddress)address = record.fullAddress.address
                 var tableData = [phone.subscriberNumber,date,comment,incident,status,address];
-                AddItemsToTable(tableData,phone,id,record.isActionWaiting);
-                addData(record,phone,id,record.isActionWaiting);
+
+
+                var history = firebase.database().ref('ReportsHistory').child(id);
+                history.get().then((snapshot) => {
+                  let historyCount = 1;
+                  const reportData = snapshot.val();
+                  for(var key in reportData){
+                    $("#history" + historyCount + id).html(null);
+                    const currentHistory = reportData[key];
+                      firebase.database().ref('Barangay/Admins').child(currentHistory.adminId).get()
+                      .then( (snapshot)=>{
+                        
+                        let admin = snapshot.val();
+                        admin.fullName = admin.firstName +" "+ admin.middleName.charAt(0)  + ". " + admin.lastName;
+                        const historyCard = `<div class="alert alert-success w-100 p-2 mb-1" role="alert">
+                          <div class="d-flex justify-content-between">
+                            <h6 class="badge badge-info btn btn-info showAdmin `+currentHistory.adminId+`" >
+                              <img src="/images/message.svg" class="my-auto" alt="test" style="width:0.8rem">
+                              <small>`+admin.fullName+`</small>
+                            </h6> 
+                            <h6 class="badge badge-light d-flex">
+                              <small class="m-auto">`+currentHistory.date+`</small>
+                            </h6>
+                          </div>  
+                          <h6 class="h6 text-dark font-weight-normal text-left" style="font-size: 0.8rem">`+currentHistory.message+`<h6>
+                        </div>`
+                        
+                        $("." + currentHistory.adminId).click(()=>{
+                          let adminInfo = admin;
+                          let profileBody = "<div>";
+                          profileBody += '<h3 class="mb-2">'+adminInfo.fullName+'</h3>';
+                          let toShowKey = ['isNightShift','email','mobileNumber','address'];
+                          for(var i = 0; i < toShowKey.length; i++ ){
+                            var key = toShowKey[i];
+                            var displayKey = "";
+                            let splittedKey = key.split(/(?=[A-Z])/);
+                            for(var j = 0; j < splittedKey.length;j++){
+                              displayKey += splittedKey[j].charAt(0).toUpperCase() + splittedKey[j].slice(1) + " ";
+                            }
+                            if(key === "isNightShift"){
+                              displayKey = "Shift";
+                              if(key)adminInfo[key] = "Night";
+                              adminInfo[key] = "Day";
+                            }
+                            // console.log(i);
+
+                            profileBody += '<div><div class="d-flex text-secondary my-2"><h5>'+displayKey+'</h5><span class="mx-1">:</span><h5 class="text-dark">'+adminInfo[key]+'</h5></div></div>'
+                          }
+                          profileBody += "</div>"
+                          Swal.fire({
+                            html: profileBody,
+                            showCloseButton: true,
+                            showCancelButton: false,
+                            focusConfirm: false,
+                          })
+                        });
+                        
+                        //AddItemsToTable(tableData,phone,id,record.isActionWaiting);
+                        const currentSectionDate = "section"+currentHistory.date.split(" ")[0];
+                        const sectionId = currentSectionDate.split("/").join("");
+                        addData(record,phone,id,record.isActionWaiting,historyCount,historyCard,sectionId);
+                        historyCount++;
+                      });
+                  }
+                });
               }
-            )
-            firebase.database().ref('isAlarmOn').set(hasWaiting);
+            );
+            
            
           });
         }
 
-        window.onload = SelectAllData;
+        window.onload = getHistory;
 
 //-----------FILLING THE TABLE-------------//
 
-        function addData(data,phone,id,isActionWaiting){
+        function addData(data,phone,id,isActionWaiting,historyCount,historyCard,sectionId){
           if(!data)return;
           if(!data.phone)data.phone = {};
           let statusColor = "bg-success";
           if(data.isActionWaiting)statusColor = "bg-danger";
-
-
-
+          const duplicationId = historyCount + id;
           const dataCard = `
           <div class="px-2 py-4 col-12 col-md-6 col-lg-4 col-xl-3">
           <div class="shadow-sm rounded-lg border border-light p-1 bg-white w-100">
               <div class="w-100 bg-secondary rounded-lg overflow-hidden position-relative">
-                <div id="map` + id +`"  class="map"> </div>
+                <div id="map` + duplicationId +`"  class="map"> </div>
                 <div id="popup`+id+`" style="background-color:white;text-align:center;border-radius: 1rem;padding: 5px;"></div>
                 <div class="text-white bg-dark m-0 w-50 position-absolute d-flex" style="bottom: 0; padding: 3px; opacity: 0.7;">
                   <p class="m-0">
@@ -292,10 +372,7 @@
                   </h6>
                   <h6 class="my-auto text-secondary w-max" style="font-size: 12px">`+data.dateTime+`</h6>
                 </div>
-                <section id="history`+id+`"></section>
-               
-                
-               
+                <section id="history`+ duplicationId + `"></section>
 
                 <div class="my-2">
                   <h5> ` + data.typeOfReport + `	</h5>
@@ -308,90 +385,25 @@
                   `+ data.description +`  
                   </h6>
                 <div class="d-flex">
-                  <p class="btn btn-primary w-100 mr-2" style="font-size: 12px" id="message`+id+`">Message</p>
-                  <p class="btn bg-white border text-secondary w-100" style="border-color: #6C757D;font-size: 12px" id="maxMap`+id+`">Maximize Map</p>
+                  <p class="btn btn-primary w-100 mr-2" style="font-size: 12px" id="message`+duplicationId+`">Message</p>
+                  <p class="btn bg-white border text-secondary w-100" style="border-color: #6C757D;font-size: 12px" id="maxMap`+duplicationId+`">Maximize Map</p>
                 </div>
               </div>
               </div>
               `;
 
           
-
-          if(!data.isActionWaiting){
-            $("#main-container").append(dataCard);
-          }else{
-            $("#main-container").prepend(dataCard);
-          }
-          addMapLayer(data,id,AllReportRecords);
-          $("#message" + id).click(function(){
+          $("#"+ sectionId).append(dataCard);
+          
+          addMapLayer(data,duplicationId,AllReportRecords);
+          $("#message" + duplicationId).click(function(){
             sendMessage(data.phone.accessToken,data.phone.subscriberNumber,id)
           });
-          $("#maxMap" + id).click(function(){
-            showMaxMap(data,id);
+          $("#maxMap" + duplicationId).click(function(){
+            showMaxMap(data,duplicationId);
           });
-
-          var history = firebase.database().ref('ReportsHistory').child(id);
-          history.on('value', (snapshot) => {
-            $("#history" + id).html(null);
-            const reportData = snapshot.val();
-            for(var key in reportData){
-              const currentHistory = reportData[key];
-                
-                firebase.database().ref('Barangay/Admins').child(currentHistory.adminId).get()
-                .then( (snapshot)=>{
-                  let admin = snapshot.val();
-                  admin.fullName = admin.firstName +" "+ admin.middleName.charAt(0)  + ". " + admin.lastName;
-                  const historyCard = `<div class="alert alert-success w-100 p-2 mb-1" role="alert">
-                    <div class="d-flex justify-content-between">
-                      <h6 class="badge badge-info btn btn-info showAdmin `+currentHistory.adminId+`" >
-                        <img src="/images/message.svg" class="my-auto" alt="test" style="width:0.8rem">
-                        <small>`+admin.fullName+`</small>
-                      </h6> 
-                      <h6 class="badge badge-light d-flex">
-                        <small class="m-auto">`+currentHistory.date+`</small>
-                      </h6>
-                    </div>  
-                    <h6 class="h6 text-dark font-weight-normal text-left" style="font-size: 0.8rem">`+currentHistory.message+`<h6>
-                  </div>`
-                  $("#history" + id).append(historyCard);
-
-                  $("." + currentHistory.adminId).click(()=>{
-                    let adminInfo = admin;
-                    let profileBody = "<div>";
-                    profileBody += '<h3 class="mb-2">'+adminInfo.fullName+'</h3>';
-                    let toShowKey = ['isNightShift','email','mobileNumber','address'];
-                    for(var i = 0; i < toShowKey.length; i++ ){
-                      var key = toShowKey[i];
-                      var displayKey = "";
-                      let splittedKey = key.split(/(?=[A-Z])/);
-                      for(var j = 0; j < splittedKey.length;j++){
-                        displayKey += splittedKey[j].charAt(0).toUpperCase() + splittedKey[j].slice(1) + " ";
-                      }
-                      if(key === "isNightShift"){
-                        displayKey = "Shift";
-                        if(key)adminInfo[key] = "Night";
-                        adminInfo[key] = "Day";
-                      }
-                      // console.log(i);
-
-                      profileBody += '<div><div class="d-flex text-secondary my-2"><h5>'+displayKey+'</h5><span class="mx-1">:</span><h5 class="text-dark">'+adminInfo[key]+'</h5></div></div>'
-                    }
-                    profileBody += "</div>"
-                    Swal.fire({
-                      html: profileBody,
-                      showCloseButton: true,
-                      showCancelButton: false,
-                      focusConfirm: false,
-                    })
-                  });
-
-                });
-                
-                
-              
-            }
-          });
-
+          $("#history" + duplicationId).append(historyCard);
+         
         }
         
         function AddItemsToTable(tableData,phone,id,isActionWaiting){
