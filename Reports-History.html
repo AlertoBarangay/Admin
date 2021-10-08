@@ -210,7 +210,11 @@
           firebase.analytics();
 
           //-------------GET ALL DATA-------------//
-        
+          function toFormmatedDate(slashSeperatedDate){
+            let splittedDate = slashSeperatedDate.split("/");
+            var months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+            return months[(splittedDate[1] - 1)] + " " + splittedDate[0] + ", " + splittedDate[2];
+          }
           function getHistory(){
             firebase.database().ref('ReportsHistory').get()
             .then( function(AllRecords){
@@ -239,8 +243,10 @@
               
               for(var i = 0; i < orderedKeyHistory.length; i++){
                 const currentHistory = historyDays[orderedKeyHistory[i]];
+                
+
                 var sectionHistory = $(`<section class=' p-1 bg-white w-100  my-3 row' id='section`+ orderedKeyHistory[i].split("/").join("") +`'>
-                  <h6 class="text-left my-3 col-12">`+orderedKeyHistory[i]+`<h6>
+                  <h6 class="text-left my-3 col-12">`+ toFormmatedDate(orderedKeyHistory[i]) +`<h6>
                 </section>`);
                 $("#main-container").append(sectionHistory);
               }
@@ -288,7 +294,7 @@
                               <small>`+admin.fullName+`</small>
                             </h6> 
                             <h6 class="badge badge-light d-flex">
-                              <small class="m-auto">`+currentHistory.date+`</small>
+                              <small class="m-auto">`+ toFormmatedDate(currentHistory.date) +`</small>
                             </h6>
                           </div>  
                           <h6 class="h6 text-dark font-weight-normal text-left" style="font-size: 0.8rem">`+currentHistory.message+`<h6>
