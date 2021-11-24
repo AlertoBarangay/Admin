@@ -393,7 +393,7 @@
         // console.log(usersAccessToken);
         axios.get(sendLink)
         .then(function (response) {
-          setIsActioned(reportId,false,reportInfo);
+          setIsActioned(reportId,false,reportInfo,message);
         }).catch(function(error){
           console.error(error);
         })
@@ -405,7 +405,7 @@
       document.getElementById("message-dialog").classList.add("hidden");
     }
 
-    function setIsActioned(reportId = null,isAction = true,reportInfo = ""){
+    function setIsActioned(reportId = null,isAction = true,reportInfo = "",textMessage = ""){
 
       // console.log(reportInfo);
       if(!reportId)return;
@@ -430,7 +430,8 @@
         const newHistory = {
           adminId : adminInfo.uid,
           date :formattedDate,
-          message : reportInfo
+          message : reportInfo,
+          textMessage : textMessage
         }
         statusRef.set('Action deployed');
         historyRef.child(newHistoryKey).set(newHistory, (error) => {

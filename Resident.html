@@ -133,7 +133,7 @@
           //-------------GET ALL DATA-------------//
 
         function SelectAllData(){
-          firebase.database().ref('Users').orderByChild('votersid').on('value',
+          firebase.database().ref('Users').orderByChild('name').on('value',
           function(AllRecords){
             AllRecords.forEach(
               function(CurrentRecord){
