@@ -1,8 +1,8 @@
 let user = null;
 initApp = function() {
-  let logInUrl = "/login";
+  let logInUrl = "/logIn";
   let homeUrl = "/";
-  let verifyAdminUrl = "/verifyadmin";
+  let verifyAdminUrl = "/verifyAdmin";
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1"){
     logInUrl += ".html";
     verifyAdminUrl += ".html";
@@ -10,7 +10,7 @@ initApp = function() {
   firebase.auth().onAuthStateChanged(function(userInfo) {
     if(userInfo){
       user = userInfo;
-      console.log(userInfo);
+      // console.log(userInfo);
       firebase.database().ref('Barangay/verifiedEmailUID').child(user.uid).get()
       .then((snapshot) => {
         if (snapshot.exists()) {

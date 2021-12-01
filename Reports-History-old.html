@@ -115,19 +115,11 @@
         font-size: 9px;
       }
 
-      .status-pill{
-        border-radius: 0.5rem;
-        background-color: #4AA845;
-        height: max-content;
-        color: #ffffff;
-        text-align: center;
-      }
-
 
         </style>
   </head>
 
-  <body > 
+  <body class="d-none"> 
 <!--navigation--> 
   <nav class="navbar bg-dark navbar-dark navbar-expand-md" style="display: none;">
     <div class="container">
@@ -177,33 +169,7 @@
     </div>    
   </nav>
     <main class="m-0 p-5" id="main-container">
-      <div class="container my-3">
-      <div class="input-group rounded w-25 flex ml-auto">
-        <input id="main-search" type="search" class="form-control rounded my-auto" placeholder="Search by status" aria-label="Search"
-        aria-describedby="search-addon" />
-        <span class="input-group-text border-0 my-auto py-2"  id="search-addon">
-          <i class="fas fa-search"></i>
-        </span>
-      </div>  
-      <h3 id="search-title" class="text-left my-3"></h3>  
-      <table class="table bg-white shadow-sm">
-        <thead class="bg-dark text-white">
-          <th >Type of Report</th>
-          <th>Status</th>
-          <th>Reported by</th>
-          <th>Phone Number</th>
-          <th>Report Information</th>
-          <th>Text Message</th>
-          <th>Date Responsed</th>
-          <th>Date Reported</th>
-          <th>Description</th>
-          <th>Address</th>
-        </thead>
-        <tbody id="main-table-body">
-        </tbody>
-        <tbody id="search-table-body">
-        </tbody>
-      </table>
+      
     </main>
     
 
@@ -224,69 +190,6 @@
         <script src="mapConfig.js"></script>
         
         <script>
-          toggleBodySearch();
-
-          function toggleBodySearch(){
-            $("#main-search").change(function(){
-              var searchText = $("#main-search").val();
-              if(searchText.length >= 1){
-                $("#main-table-body").hide();
-                $("#search-table-body").show();
-                $("#search-title").show();
-                $("#search-title").html('Search Result for: ' + searchText);
-                firebase.database()
-                .ref('Reports')
-                .orderByChild('typeOfReport')
-                .startAt(searchText)
-                .endAt(searchText + "\uf8ff")
-                .once('value')
-                .then((AllRecords) => {
-                  if(AllRecords.val() === null)AddItemsToTable([], true);
-                  AllRecords.forEach((CurrentRecord)=>{
-                    const reportId = CurrentRecord.key;
-                    const report = CurrentRecord.val();
-                    var address = report.address;
-                    var dateReported = report.dateTime;
-                    var description = report.description;
-                    var phoneNumber = report.phone.subscriberNumber;
-                    var reportBy = report.reportBy;
-                    var status = report.status;
-                    var typeOfReport = report.typeOfReport;
-                    firebase.database().ref('ReportsHistory').child(reportId).get()
-                    .then( (snapshot)=>{
-                      snapshot.forEach((CurrentRecord)=>{
-                      const histories = CurrentRecord.val();
-                      for(var key in histories){
-                        const val = histories[key];
-                        var dateResponsed = val.date || '';
-                        var message = val.message || '';
-                        var textMessage = val.textMessage || '';
-                        const tableData = [typeOfReport,
-                                          status,
-                                          reportBy,
-                                          phoneNumber,
-                                          message,
-                                          textMessage,
-                                          dateResponsed,
-                                          dateReported,
-                                          description,
-                                          address
-                                        ];
-                        console.log(tableData);
-                        AddItemsToTable(tableData,true);
-                      }
-                      })
-                    });
-              })
-                });
-              }else{
-                $("#main-table-body").show();
-                $("#search-table-body").hide();
-                $("#search-title").hide();
-              }
-            });
-          }
-
           let AllReportRecords = {};
           let historyDays = {};
           // Your web app's Firebase configuration
@@ -314,45 +217,41 @@
           function getHistory(){
             firebase.database().ref('ReportsHistory').get()
             .then( function(AllRecords){
-              AllRecords.forEach((CurrentRecord)=>{
-                const reportId = CurrentRecord.key;
-                const histories = CurrentRecord.val();
-
-                firebase.database().ref('Reports').child(reportId).get()
-                .then( (snapshot)=>{
-                  // console.log(snapshot.val());
-                  const report = snapshot.val();
-                  var address = report.address;
-                  var dateReported = report.dateTime;
-                  var description = report.description;
-                  var phoneNumber = report.phone.subscriberNumber;
-                  var reportBy = report.reportBy;
-                  var status = report.status;
-                  var typeOfReport = report.typeOfReport;
-                  for(var key in histories){
-                    const val = histories[key];
-                    var dateResponsed = val.date || '';
-                    var message = val.message || '';
-                    var textMessage = val.textMessage || '';
-                    const tableData = [typeOfReport,
-                                      status,
-                                      reportBy,
-                                      phoneNumber,
-                                      message,
-                                      textMessage,
-                                      dateResponsed,
-                                      dateReported,
-                                      description,
-                                      address
-                                    ];
-                    AddItemsToTable(tableData,false);
+              AllRecords.forEach(function(childSnapshot){
+                let historyCount = 1;
+                const id = childSnapshot.key;
+                for(key in childSnapshot.val()){
+                  const CurrentRecord = childSnapshot.val()[key];
+                  const dayMonthYear = CurrentRecord.date.split(" ")[0];
+                  if(!historyDays[dayMonthYear])historyDays[dayMonthYear] = {};
+                  const duplicationHistoryId = "history" + historyCount + id;
+                  historyDays[dayMonthYear][duplicationHistoryId] = {
+                    adminId : CurrentRecord.adminId,
+                    historyCard : null
                   }
-
-                });
+                  historyCount++;  
+                }
               })
-            })
-          }    
+              let orderedKeyHistory = Object.keys(historyDays).sort(function(a, b){
+                const splittedA = a.split("/");
+                const splittedB = b.split("/");
+
+                let sorted = (splittedB[0] + splittedB[1] + splittedB[2]) -  (splittedA[0] + splittedA[1] + splittedA[2]); 
+                return  sorted;
+              });
+              
+              for(var i = 0; i < orderedKeyHistory.length; i++){
+                const currentHistory = historyDays[orderedKeyHistory[i]];
                 
+
+                var sectionHistory = $(`<section class=' p-1 bg-white w-100  my-3 row' id='section`+ orderedKeyHistory[i].split("/").join("") +`'>
+                  <h6 class="text-left my-3 col-12">`+ toFormmatedDate(orderedKeyHistory[i]) +`<h6>
+                </section>`);
+                $("#main-container").append(sectionHistory);
+              }
+              SelectAllData();
+            });
+          }  
   
 
         function SelectAllData(){
@@ -515,40 +414,31 @@
          
         }
         
-        function AddItemsToTable(tableData,toSearch){
-          if(toSearch){
-            $("#search-table-body").html('');
-            var tbody = document.getElementById('search-table-body');
-          }else{
-            var tbody = document.getElementById('main-table-body');
-          }
+        function AddItemsToTable(tableData,phone,id,isActionWaiting){
+          var tbody = document.getElementById('tbody1');
           var trow = document.createElement('tr');
-          // if(isActionWaiting)trow.style.backgroundColor = 'rgba(255,0,0,0.3)'
+          if(isActionWaiting)trow.style.backgroundColor = 'rgba(255,0,0,0.3)'
           trow.className = "reportRow";
 
-          // var tdMessage = document.createElement('td');
-          // tdMessage.innerHTML= "<h6 id=msg" + id + " class='message-btn'>Message<h6>"; 
-          // trow.appendChild(tdMessage); 
+          var tdMessage = document.createElement('td');
+          tdMessage.innerHTML= "<h6 id=msg" + id + " class='message-btn'>Message<h6>"; 
+          trow.appendChild(tdMessage); 
           for(var i = 0; i < tableData.length; i++ ){
-            
             var td = document.createElement('td');
             td.innerHTML = tableData[i] || '';
             trow.appendChild(td);
-            if(i === 1){
-              td.classList.add('status-pill');
-            }
           }
           
-          // trow.id = id;
+          trow.id = id;
           tbody.appendChild(trow);
-          // $("#msg" + id).click(function(){
-          //   // sendMessage('test',phone.accessToken,phone.subscriberNumber);
-          //   $("#usersNumber").html(phone.subscriberNumber);
-          //   $("#msg-phone-number").val(phone.subscriberNumber);
-          //   $("#msg-access-token").val(phone.accessToken);
-          //   $("#report-id").val(id);
-          //   $("#message-dialog").show(500);
-          // });
+          $("#msg" + id).click(function(){
+            // sendMessage('test',phone.accessToken,phone.subscriberNumber);
+            $("#usersNumber").html(phone.subscriberNumber);
+            $("#msg-phone-number").val(phone.subscriberNumber);
+            $("#msg-access-token").val(phone.accessToken);
+            $("#report-id").val(id);
+            $("#message-dialog").show(500);
+          });
         }
 
     const appId = "94MguznMMeCb5ip5KpcMnGC8k4XzuxXL";
