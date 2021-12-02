@@ -1,8 +1,8 @@
 let user = null;
 initApp = function() {
-  let logInUrl = "/logIn";
+  let logInUrl = "/login";
   let homeUrl = "/";
-  let verifyAdminUrl = "/verifyAdmin";
+  let verifyAdminUrl = "/verifyadmin";
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1"){
     logInUrl += ".html";
     verifyAdminUrl += ".html";
