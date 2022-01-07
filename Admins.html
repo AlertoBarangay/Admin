@@ -135,23 +135,23 @@
           toggleBodySearch();
 
           function toggleBodySearch(){
+            
             $("#main-search").change(function(){
               var searchText = $("#main-search").val();
               if(searchText.length >= 1){
+                
+                $("#search-table-body").html('');
                 $("#main-table-body").hide();
                 $("#search-table-body").show();
                 $("#search-title").show();
                 $("#search-title").html('Search Result for: ' + searchText);
-                firebase.database()
-                .ref('Barangay/Admins')
-                .orderByChild('firstName')
-                .startAt(searchText)
-                .endAt(searchText + "\uf8ff")
-                .once('value')
-                .then((AllRecords) => {
-                  if(AllRecords.val() === null)AddItemsToTable([], true);
+                
+                firebase.database().ref('Barangay/Admins').on('value',
+                function(AllRecords){
                   AllRecords.forEach(
-                    (CurrentRecord)=>{
+                    function(CurrentRecord){
+                      var hasKeyword = false;
+                      
                       var firstName = CurrentRecord.val().firstName || '';
                       var middleName = CurrentRecord.val().middleName || '';
                       var lastName = CurrentRecord.val().lastName || '';
@@ -159,12 +159,27 @@
                       var email = CurrentRecord.val().email || '';
                       var mobileNumber = CurrentRecord.val().mobileNumber || '';
                       var address = CurrentRecord.val().address || '';
+                      var searchColumns = [firstName,middleName,lastName,mobileNumber,mobileNumber,address,email,isNightShift];
+                      for (let i = 0; i < searchColumns.length; i++) {
+                        let row = '';
+                        try {
+                          row = searchColumns[i].toLowerCase() 
+                        } catch (error) {
+                          console.log(searchColumns[i])
+                        }
+                        
+                        if(row.search(searchText.toLowerCase()) >= 0 )hasKeyword = true;
+                      }
+
+                      var isApprove = CurrentRecord.val().isApprove;
+                      const tableData = [firstName,middleName,lastName,isNightShift,email,mobileNumber,address];
+
+                      if(hasKeyword)AddItemsToTable(tableData,true);
                       
-                      const tableData = [firstName,middleName,lastName,isNightShift,email,mobileNumber,address]
-                      AddItemsToTable(tableData,true);
                     }
                   )
                 });
+
               }else{
                 $("#main-table-body").show();
                 $("#search-table-body").hide();
@@ -204,7 +219,10 @@
                 var mobileNumber = CurrentRecord.val().mobileNumber || '';
                 var address = CurrentRecord.val().address || '';
                 
+                
+
                 const tableData = [firstName,middleName,lastName,isNightShift,email,mobileNumber,address]
+
                 AddItemsToTable(tableData);
 
               }
@@ -218,7 +236,6 @@
 
         function AddItemsToTable(data,toSearch = false){
           if(toSearch){
-            $("#search-table-body").html('');
             var tbody = document.getElementById('search-table-body');
           }else{
             

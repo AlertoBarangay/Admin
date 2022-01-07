@@ -230,38 +230,50 @@
             $("#main-search").change(function(){
               var searchText = $("#main-search").val();
               if(searchText.length >= 1){
+                
+                $("#search-table-body").html('');
                 $("#main-table-body").hide();
                 $("#search-table-body").show();
                 $("#search-title").show();
                 $("#search-title").html('Search Result for: ' + searchText);
-                firebase.database()
-                .ref('Reports')
-                .orderByChild('typeOfReport')
-                .startAt(searchText)
-                .endAt(searchText + "\uf8ff")
-                .once('value')
-                .then((AllRecords) => {
-                  if(AllRecords.val() === null)AddItemsToTable([], true);
+                
+                firebase.database().ref('ReportsHistory').get()
+                .then( function(AllRecords){
                   AllRecords.forEach((CurrentRecord)=>{
                     const reportId = CurrentRecord.key;
-                    const report = CurrentRecord.val();
-                    var address = report.address;
-                    var dateReported = report.dateTime;
-                    var description = report.description;
-                    var phoneNumber = report.phone.subscriberNumber;
-                    var reportBy = report.reportBy;
-                    var status = report.status;
-                    var typeOfReport = report.typeOfReport;
-                    firebase.database().ref('ReportsHistory').child(reportId).get()
+                    const histories = CurrentRecord.val();
+
+                    firebase.database().ref('Reports').child(reportId).get()
                     .then( (snapshot)=>{
-                      snapshot.forEach((CurrentRecord)=>{
-                      const histories = CurrentRecord.val();
+                      // console.log(snapshot.val());
+                      const report = snapshot.val();
+                      var address = report.address;
+                      var dateReported = report.dateTime;
+                      var description = report.description;
+                      var phoneNumber = report.phone.subscriberNumber;
+                      var reportBy = report.reportBy;
+                      var status = report.status;
+                      var typeOfReport = report.typeOfReport;
                       for(var key in histories){
+                        var hasKeyword = false;
                         const val = histories[key];
                         var dateResponsed = val.date || '';
                         var message = val.message || '';
                         var textMessage = val.textMessage || '';
-                        const tableData = [typeOfReport,
+                        var searchColumns = [status,typeOfReport,reportBy,phoneNumber,description,textMessage,dateResponsed,dateReported];
+                        console.log(searchText);
+                        for (let i = 0; i < searchColumns.length; i++) {
+                          let row = '';
+                          try {
+                            row = searchColumns[i].toLowerCase() 
+                          } catch (error) {
+                            console.error(searchColumns[i])
+                          }
+                          
+                          if(row.search(searchText.toLowerCase()) >= 0 )hasKeyword = true;
+                        }
+
+                        var tableData = [typeOfReport,
                                           status,
                                           reportBy,
                                           phoneNumber,
@@ -272,16 +284,17 @@
                                           description,
                                           address
                                         ];
-                        console.log(tableData);
-                        AddItemsToTable(tableData,true);
+                        if(hasKeyword)AddItemsToTable(tableData,true);
                       }
-                      })
+
                     });
-              })
-                });
+                  })
+                })
+
               }else{
                 $("#main-table-body").show();
                 $("#search-table-body").hide();
+                $("#search-table-body").html('');
                 $("#search-title").hide();
               }
             });
@@ -329,12 +342,13 @@
                   var reportBy = report.reportBy;
                   var status = report.status;
                   var typeOfReport = report.typeOfReport;
+                  var tableData = [];
                   for(var key in histories){
                     const val = histories[key];
                     var dateResponsed = val.date || '';
                     var message = val.message || '';
                     var textMessage = val.textMessage || '';
-                    const tableData = [typeOfReport,
+                    var tableData = [typeOfReport,
                                       status,
                                       reportBy,
                                       phoneNumber,
@@ -345,8 +359,8 @@
                                       description,
                                       address
                                     ];
+                    }
                     AddItemsToTable(tableData,false);
-                  }
 
                 });
               })
@@ -512,12 +526,10 @@
             showMaxMap(data,duplicationId);
           });
           $("#history" + duplicationId).append(historyCard);
-         
         }
         
         function AddItemsToTable(tableData,toSearch){
           if(toSearch){
-            $("#search-table-body").html('');
             var tbody = document.getElementById('search-table-body');
           }else{
             var tbody = document.getElementById('main-table-body');
@@ -539,16 +551,8 @@
             }
           }
           
-          // trow.id = id;
           tbody.appendChild(trow);
-          // $("#msg" + id).click(function(){
-          //   // sendMessage('test',phone.accessToken,phone.subscriberNumber);
-          //   $("#usersNumber").html(phone.subscriberNumber);
-          //   $("#msg-phone-number").val(phone.subscriberNumber);
-          //   $("#msg-access-token").val(phone.accessToken);
-          //   $("#report-id").val(id);
-          //   $("#message-dialog").show(500);
-          // });
+          
         }
 
     const appId = "94MguznMMeCb5ip5KpcMnGC8k4XzuxXL";
