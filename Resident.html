@@ -141,35 +141,51 @@
           $("#main-search").change(function(){
             var searchText = $("#main-search").val();
             if(searchText.length >= 1){
+              $("#search-table-body").html('');
               $("#main-table-body").hide();
               $("#search-table-body").show();
               $("#search-title").show();
               $("#search-title").html('Search Result for: ' + searchText);
-              firebase.database()
-              .ref('Users')
-              .orderByChild('name')
-              .startAt(searchText)
-              .endAt(searchText + "\uf8ff")
-              .once('value')
-              .then((AllRecords) => {
-                console.log(AllRecords.val());
-                if(AllRecords.val() === null)AddItemsToTable([], true);
+              
+              firebase.database().ref('Users')
+              .orderByChild('isApprove')
+              .on('value',
+              function(AllRecords){
                 AllRecords.forEach(
                   function(CurrentRecord){
+                    var hasKeyword = false;
+                    
+                    var record = CurrentRecord.val();
                     var name = CurrentRecord.val().name || '';
                     var votersid = CurrentRecord.val().votersid || '';
                     var address = CurrentRecord.val().email || '';
                     var email = CurrentRecord.val().address || '';
                     var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
-                    const tableData = [votersid,name,email,address,mobile_no]
-                    AddItemsToTable(tableData,true,CurrentRecord.key);
+                    var searchColumns = [name,address,votersid,email,mobile_no];
+                    console.log(searchText);
+                    for (let i = 0; i < searchColumns.length; i++) {
+                      let row = '';
+                      try {
+                        row = searchColumns[i].toLowerCase() 
+                      } catch (error) {
+                        console.log(searchColumns[i])
+                      }
+                      
+                      if(row.search(searchText.toLowerCase()) >= 0 )hasKeyword = true;
+                    }
+
+                    var isApprove = CurrentRecord.val().isApprove;
+                    const tableData = [votersid,name,email,address,mobile_no,isApprove]
+                    if(hasKeyword)AddItemsToTable(tableData,true,CurrentRecord.key);
 
                   }
                 )
               });
+
             }else{
               $("#main-table-body").show();
               $("#search-table-body").hide();
+              $("#search-table-body").html('');
               $("#search-title").hide();
             }
           });
@@ -194,7 +210,9 @@
           //-------------GET ALL DATA-------------//
 
         function SelectAllData(){
-          firebase.database().ref('Users').orderByChild('isApproved').on('value',
+          firebase.database().ref('Users')
+          .orderByChild('isApprove')
+          .on('value',
           function(AllRecords){
             $("#main-table-body").html('');
             AllRecords.forEach(
@@ -204,8 +222,8 @@
                 var address = CurrentRecord.val().email || '';
                 var email = CurrentRecord.val().address || '';
                 var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
-                var isApproved = CurrentRecord.val().isApproved;
-                const tableData = [votersid,name,email,address,mobile_no,isApproved]
+                var isApprove = CurrentRecord.val().isApprove;
+                const tableData = [votersid,name,email,address,mobile_no,isApprove]
                 AddItemsToTable(tableData,false,CurrentRecord.key);
 
               }
@@ -219,7 +237,6 @@
 
         function AddItemsToTable(data, toSearch = false,id){
           if(toSearch){
-            $("#search-table-body").html('');
             var tbody = document.getElementById('search-table-body');
           }else{
             var tbody = document.getElementById('main-table-body');
@@ -260,8 +277,8 @@
                   firebase.database()
                   .ref('Users')
                   .child(id)
-                  .child('isApproved')
-                  .set(false)
+                  .child('isApprove')
+                  .set(true)
                   .then(()=>{
                     var subject = "Alerto%20Barangay%20Acount%20Approval";
                     var body = "Your%20account%20has%20been%20approved.You%20can%20now%20log%20in%20through%20the%20app."
@@ -271,8 +288,7 @@
                   firebase.database()
                   .ref('Users')
                   .child(id)
-                  .child('isApproved')
-                  .set(true)
+                  .set(null)
                   .then(()=>{
                     var subject = "Alerto%20Barangay%20Acount%20Disapproval";
                     var body = "Your%20account%20has%20been%20declined%20due%20the%20following%20reason(s):"
