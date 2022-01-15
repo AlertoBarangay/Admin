@@ -111,13 +111,12 @@
       <h3 id="search-title" class="text-left my-3"></h3>  
       <table class="table bg-white shadow-sm">
         <thead class="bg-dark text-white">
-          <th >Voter's ID</th>
+          <th>Type of ID</th>
+          <th>ID number</th>
           <th>Full Name</th>
           <th>Address</th>
           <th>Email</th>
           <th>Phone Number</th>
-          <th>Type of ID</th>
-          <th>ID number</th>
           <th>Picture</th>
           <th>Verify Status</th>
         </thead>
@@ -182,7 +181,7 @@
                     }
 
                     var isApprove = CurrentRecord.val().isApprove;
-                    const tableData = [votersid,name,email,address,mobile_no,typeofid,idnumber,picture, isApprove]
+                    const tableData = [typeofid,idnumber,name,email,address,mobile_no,picture,isApprove]
                     if(hasKeyword)AddItemsToTable(tableData,true,CurrentRecord.key);
 
                   }
@@ -225,7 +224,6 @@
             AllRecords.forEach(
               function(CurrentRecord){
                 var name = CurrentRecord.val().name || '';
-                var votersid = CurrentRecord.val().votersid || '';
                 var address = CurrentRecord.val().email || '';
                 var email = CurrentRecord.val().address || '';
                 var mobile_no = CurrentRecord.val().phone.subscriberNumber|| '';
@@ -234,7 +232,7 @@
                 var picture =  '';
 
                 var isApprove = CurrentRecord.val().isApprove;
-                const tableData = [votersid,name,email,address,mobile_no,typeofid,idnumber,picture,isApprove]
+                const tableData = [typeofid,idnumber,name,email,address,mobile_no,picture,isApprove]
                 AddItemsToTable(tableData,false,CurrentRecord.key);
 
               }
