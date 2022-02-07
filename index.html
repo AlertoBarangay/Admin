@@ -313,8 +313,10 @@
             $("#main-container").prepend(dataCard);
           }
           addMapLayer(data,id,AllReportRecords);
+          let image = data.imageUrl || '';
+          let video = data.videoUrl || '';
           $("#message" + id).click(function(){
-            sendMessage(data.phone.accessToken,data.phone.subscriberNumber,id)
+            sendMessage(data.phone.accessToken,data.phone.subscriberNumber,id,image,video)
           });
           $("#maxMap" + id).click(function(){
             showMaxMap(data,id);
@@ -354,10 +356,36 @@
     const shortCodeLast4Digit = "5411";
     const registrationLink = "https://developer.globelabs.com.ph/dialog/oauth/" + appId;
 
-    function sendMessage(usersAccessToken, usersPhoneNumber,reportId){
+    function sendMessage(usersAccessToken, usersPhoneNumber,reportId,image,video){
+
+      let proofSection = `
+              <section class="my-3 p-3" style="background-color: #d4d3cf" >
+            `;
+
+            if(image){
+              proofSection += `
+                  <img style="max-height: 400px" src="${image}" />
+                `;
+            }
+
+            if(video){
+              proofSection += `
+                <video width="320" height="240" controls>
+                  <source src="${video}" type="video/mp4">
+                Your browser does not support the video tag.
+                </video>
+                `;
+            }
+            if(!image && !video){
+              proofSection += `
+                <h6 class="text-danger">Sender did not provide an image or video</6>
+              `
+            }
+            proofSection += "</section>";
+
       Swal.fire({
         title: `<div id="sendMessageTitle">Send Message to `+usersPhoneNumber+`</div>`,
-        html : `
+        html : proofSection + `
          <form id="sendMessageForm">
             <div class="form-group">
               <label for="textMessage" class="text-left w-100">Text Message</label>
@@ -369,7 +397,7 @@
               <small id="emailHelp" class="form-text text-muted text-left w-100">This will be seen as additional information on the report history.</small>
             </div>
             <button type="submit" class="btn btn-primary w-100" id="submitMessage">Send Message</button> 
-         </form>
+        </form>
         `,
         showCancelButton: false,
         showConfirmButton: false,
