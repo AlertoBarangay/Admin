@@ -359,7 +359,7 @@
     function sendMessage(usersAccessToken, usersPhoneNumber,reportId,image,video){
 
       let proofSection = `
-              <section class="my-3 p-3" style="background-color: #d4d3cf" >
+              <section class="my-3 p-3" id="proofSection" style="background-color: #d4d3cf" >
             `;
 
             if(image){
@@ -408,6 +408,7 @@
       $("#sendMessageForm").submit(( event ) => {
         event.preventDefault();
         $("#sendMessageForm").hide();
+        $("#proofSection").hide();
         $("#sendMessageTitle").html("Sending Message...");
         swal.disableButtons();
         swal.showLoading();
